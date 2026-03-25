@@ -243,6 +243,11 @@ function App() {
   const [heroSlide, setHeroSlide] = useState(0)
   const [toast, setToast] = useState('')
 
+  // ── Inheritor panel state ──
+  const [selectedInheritor, setSelectedInheritor] = useState(null)
+  const [isPanelOpen, setIsPanelOpen] = useState(false)
+  const [isPanelClosing, setIsPanelClosing] = useState(false)
+
   // ── Auth state ──
   const [user, setUser] = useState(getStoredAuth)
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -255,6 +260,37 @@ function App() {
   // Register form
   const [regForm, setRegForm] = useState({ username: '', email: '', password: '', confirmPassword: '', captcha: '' })
   const [regErrors, setRegErrors] = useState({})
+
+  // ── Inheritor panel handlers ──
+  const handleInheritorClick = (name) => {
+    const canonical = inheritorsData.find(p => p.name === name) ?? {
+      name, title: '', location: '', biography: '', achievements: [],
+    }
+    setSelectedInheritor(canonical)
+    setIsPanelClosing(false)
+    setIsPanelOpen(false)
+    // 下一帧再添加 --open，让浏览器先渲染初始状态，CSS transition 才能触发
+    requestAnimationFrame(() => setIsPanelOpen(true))
+  }
+
+  const handleClosePanel = () => {
+    setIsPanelOpen(false)
+    setIsPanelClosing(true)
+  }
+
+  const handlePanelTransitionEnd = (e) => {
+    if (e.propertyName !== 'transform') return
+    if (isPanelClosing) {
+      setSelectedInheritor(null)
+      setIsPanelClosing(false)
+    }
+  }
+
+  useEffect(() => {
+    setSelectedInheritor(null)
+    setIsPanelOpen(false)
+    setIsPanelClosing(false)
+  }, [route])
 
   // Captcha
   const [captchaCode, setCaptchaCode] = useState(generateCaptcha)
