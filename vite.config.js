@@ -49,7 +49,7 @@ function qaProxyPlugin() {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer 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`,
+                Authorization: `Bearer ${process.env.NVIDIA_API_KEY || ''}`,
               },
               body: JSON.stringify({
                 model: 'nvidia/nemotron-3-super-120b-a12b',

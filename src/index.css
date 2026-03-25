@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
+/* Ma Shan Zheng font loaded via index.html <link> tags for faster preconnect */
 
 :root {
   color-scheme: light;
@@ -55,8 +55,10 @@ button {
   cursor: pointer;
 }
 
+input,
 button,
-textarea {
+textarea,
+select {
   font: inherit;
 }
 

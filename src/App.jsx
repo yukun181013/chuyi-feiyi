@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import ClickEffect from './ClickEffect'
 
@@ -202,7 +202,13 @@ function getStoredAuth() {
 }
 
 function avatarUrl(name) {
-  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=9f3b2f&fontColor=ffffff&fontSize=36`
+  const colors = ['9f3b2f', '8B4513', '6B3A2A', 'A0522D', '7B2D26', '5C3317', '804020', '6A3028']
+  let hash = 0
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash)
+  const bg = colors[Math.abs(hash) % colors.length]
+  const fontSize = name.length <= 2 ? 40 : name.length === 3 ? 32 : 26
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="%23${bg}"/><text x="64" y="64" text-anchor="middle" dominant-baseline="central" fill="white" font-size="${fontSize}" font-family="'Ma Shan Zheng','STKaiti','KaiTi',sans-serif">${name}</text></svg>`
+  return `data:image/svg+xml,${svg}`
 }
 
 // ── Route helper ─────────────────────────────────────────────────────────────
@@ -231,10 +237,18 @@ function App() {
   const [worksCategory, setWorksCategory] = useState('全部')
   const [question, setQuestion] = useState(defaultQuestion)
   const [answer, setAnswer] = useState('这里会显示课程答疑、术语解释、学习建议和传播方案。')
+  const [askedQuestion, setAskedQuestion] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
-  const [cartCount, setCartCount] = useState(1)
+  const [cartCount, setCartCount] = useState(0)
   const [searchText, setSearchText] = useState('')
+  const [worksSearch, setWorksSearch] = useState('')
+  const [inheritorsSearch, setInheritorsSearch] = useState('')
+  const [activitiesSearch, setActivitiesSearch] = useState('')
+  const [courseSearch, setCourseSearch] = useState('')
+  const [activitiesFilter, setActivitiesFilter] = useState('全部')
+  const [courseFilter, setCourseFilter] = useState('全部分类')
+  const [inheritorsFilter, setInheritorsFilter] = useState('全部')
   const [sortMode, setSortMode] = useState('default')
   const [activeTag, setActiveTag] = useState('全部')
   const [showAllTags, setShowAllTags] = useState(false)
@@ -292,6 +306,14 @@ function App() {
     setIsPanelClosing(false)
   }, [route])
 
+  // Close inheritor panel on Escape key
+  useEffect(() => {
+    if (!selectedInheritor) return
+    const handleEsc = (e) => { if (e.key === 'Escape') handleClosePanel() }
+    document.addEventListener('keydown', handleEsc)
+    return () => document.removeEventListener('keydown', handleEsc)
+  }, [selectedInheritor])
+
   // Captcha
   const [captchaCode, setCaptchaCode] = useState(generateCaptcha)
 
@@ -315,10 +337,15 @@ function App() {
     return () => window.clearTimeout(timer)
   }, [toast])
 
-  useEffect(() => {
-    const timer = setInterval(() => setHeroSlide((s) => (s + 1) % heroSlides.length), 5000)
-    return () => clearInterval(timer)
+  const heroTimerRef = useRef(null)
+  const resetHeroTimer = useCallback(() => {
+    if (heroTimerRef.current) clearInterval(heroTimerRef.current)
+    heroTimerRef.current = setInterval(() => setHeroSlide((s) => (s + 1) % heroSlides.length), 5000)
   }, [])
+  useEffect(() => {
+    resetHeroTimer()
+    return () => clearInterval(heroTimerRef.current)
+  }, [resetHeroTimer])
 
   // Sync profile form when user changes
   useEffect(() => {
@@ -358,7 +385,7 @@ function App() {
   async function handleAsk(event) {
     event.preventDefault()
     if (!question.trim()) { setError('请输入问题后再发送。'); return }
-    setIsLoading(true); setError(''); setAnswer('')
+    setIsLoading(true); setError(''); setAnswer(''); setAskedQuestion(question)
     try {
       const res = await fetch('/api/qa', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question }) })
       const data = await res.json()
@@ -601,7 +628,7 @@ function App() {
             </div>
             <div className="hero-dots" aria-label="幻灯片导航">
               {heroSlides.map((_, i) => (
-                <button key={i} type="button" className={`hero-dot ${i === heroSlide ? 'hero-dot-active' : ''}`} aria-label={`第${i + 1}张`} onClick={() => setHeroSlide(i)} />
+                <button key={i} type="button" className={`hero-dot ${i === heroSlide ? 'hero-dot-active' : ''}`} aria-label={`第${i + 1}张`} onClick={() => { setHeroSlide(i); resetHeroTimer() }} />
               ))}
             </div>
           </div>
@@ -753,7 +780,10 @@ function App() {
   }
 
   function renderWorks() {
-    const filtered = worksCategory === '全部' ? heritageWorks : heritageWorks.filter((w) => w.badge === worksCategory || w.category.includes(worksCategory))
+    const keyword = worksSearch.trim().toLowerCase()
+    const filtered = heritageWorks
+      .filter((w) => worksCategory === '全部' || w.badge === worksCategory || w.category.includes(worksCategory))
+      .filter((w) => !keyword || w.title.toLowerCase().includes(keyword) || w.author.toLowerCase().includes(keyword) || w.location.toLowerCase().includes(keyword) || w.category.toLowerCase().includes(keyword))
     return (
       <>
         <div className="page-hero" style={{ '--hero-bg': `url(${IMG.modDrama})` }}>
@@ -767,7 +797,7 @@ function App() {
         </div>
         <div className="page-toolbar">
           <div className="search-input-wrapper">
-            <input type="search" placeholder="搜索作品名称、地区、分类..." />
+            <input type="search" placeholder="搜索作品名称、地区、分类..." value={worksSearch} onChange={(e) => setWorksSearch(e.target.value)} />
             <button className="search-btn" type="button">搜索</button>
           </div>
         </div>
@@ -813,14 +843,22 @@ function App() {
         </div>
         <div className="page-toolbar">
           <div className="search-input-wrapper">
-            <input type="search" placeholder="搜索传承人姓名..." />
+            <input type="search" placeholder="搜索传承人姓名..." value={inheritorsSearch} onChange={(e) => setInheritorsSearch(e.target.value)} />
             <button className="search-btn" type="button">搜索</button>
           </div>
-          <select className="filter-select"><option>地区</option></select>
+          <select className="filter-select" value={inheritorsFilter} onChange={(e) => setInheritorsFilter(e.target.value)}>
+            <option value="全部">全部地区</option>
+            {[...new Set(inheritorsData.map((p) => p.location))].map((loc) => <option key={loc} value={loc}>{loc}</option>)}
+          </select>
         </div>
         <div className="section-wrapper" style={{ paddingTop: 24 }}>
           <div className="inheritors-grid">
-            {inheritorsData.map((person) => (
+            {inheritorsData.filter((person) => {
+              const kw = inheritorsSearch.trim().toLowerCase()
+              const matchSearch = !kw || person.name.toLowerCase().includes(kw) || person.title.toLowerCase().includes(kw)
+              const matchFilter = inheritorsFilter === '全部' || person.location === inheritorsFilter
+              return matchSearch && matchFilter
+            }).map((person) => (
               <div key={person.id} className="inheritor-card">
                 <img src={avatarUrl(person.name)} alt={person.name} className="inheritor-avatar" />
                 <div className="inheritor-name">
@@ -856,14 +894,24 @@ function App() {
         </div>
         <div className="page-toolbar">
           <div className="search-input-wrapper">
-            <input type="search" placeholder="搜索活动..." />
+            <input type="search" placeholder="搜索活动..." value={activitiesSearch} onChange={(e) => setActivitiesSearch(e.target.value)} />
             <button className="search-btn" type="button">搜索</button>
           </div>
-          <select className="filter-select"><option>报名中</option><option>进行中</option><option>已结束</option></select>
+          <select className="filter-select" value={activitiesFilter} onChange={(e) => setActivitiesFilter(e.target.value)}>
+            <option value="全部">全部状态</option>
+            <option value="报名中">报名中</option>
+            <option value="进行中">进行中</option>
+            <option value="已结束">已结束</option>
+          </select>
         </div>
         <div className="section-wrapper" style={{ paddingTop: 24 }}>
           <div className="activities-grid">
-            {activitiesData.map((act) => (
+            {activitiesData.filter((act) => {
+              const kw = activitiesSearch.trim().toLowerCase()
+              const matchSearch = !kw || act.title.toLowerCase().includes(kw) || act.location.toLowerCase().includes(kw)
+              const matchFilter = activitiesFilter === '全部' || act.status === activitiesFilter
+              return matchSearch && matchFilter
+            }).map((act) => (
               <div key={act.id} className="activity-card">
                 <div className="activity-img">
                   <img src={act.image} alt={act.title} />
@@ -900,14 +948,24 @@ function App() {
         </div>
         <div className="page-toolbar">
           <div className="search-input-wrapper">
-            <input type="search" placeholder="搜索课程..." />
+            <input type="search" placeholder="搜索课程..." value={courseSearch} onChange={(e) => setCourseSearch(e.target.value)} />
             <button className="search-btn" type="button">搜索</button>
           </div>
-          <select className="filter-select"><option>全部分类</option><option>手工艺</option><option>戏曲</option><option>音乐</option></select>
+          <select className="filter-select" value={courseFilter} onChange={(e) => setCourseFilter(e.target.value)}>
+            <option value="全部分类">全部分类</option>
+            <option value="初级">初级</option>
+            <option value="中级">中级</option>
+            <option value="高级">高级</option>
+          </select>
         </div>
         <div className="section-wrapper" style={{ paddingTop: 24 }}>
           <div className="course-grid">
-            {coursesData.map((c) => {
+            {coursesData.filter((c) => {
+              const kw = courseSearch.trim().toLowerCase()
+              const matchSearch = !kw || c.title.toLowerCase().includes(kw)
+              const matchFilter = courseFilter === '全部分类' || c.level === courseFilter
+              return matchSearch && matchFilter
+            }).map((c) => {
               const levels = { '初级': 1, '中级': 2, '高级': 3 }
               const lvl = levels[c.level] || 1
               return (
@@ -983,7 +1041,7 @@ function App() {
           </div>
           {answer && answer !== '这里会显示课程答疑、术语解释、学习建议和传播方案。' && (
             <>
-              <div className="ai-message-user">{question}</div>
+              <div className="ai-message-user">{askedQuestion}</div>
               <div className="ai-message-bot">{answer}</div>
             </>
           )}
@@ -1352,8 +1410,8 @@ function App() {
 
   function renderProfile() {
     if (!user) {
-      window.location.hash = '#/login'
-      return null
+      // Redirect via effect to avoid side effects during render
+      return <ProfileRedirect />
     }
 
     return (
@@ -1555,7 +1613,7 @@ function App() {
       <main className="portal-main">{renderPage()}</main>
       {renderFooter()}
       {selectedInheritor && (
-        <div className="inheritor-overlay" onClick={handleClosePanel} />
+        <div className="inheritor-overlay" role="button" tabIndex={-1} aria-label="关闭传承人详情" onClick={handleClosePanel} onKeyDown={(e) => { if (e.key === 'Escape') handleClosePanel() }} />
       )}
       {selectedInheritor && (
         <div
@@ -1597,6 +1655,12 @@ function App() {
       )}
     </div>
   )
+}
+
+// ── ProfileRedirect helper ────────────────────────────────────────────────────
+function ProfileRedirect() {
+  useEffect(() => { window.location.hash = '#/login' }, [])
+  return null
 }
 
 // ── PasswordInput helper ──────────────────────────────────────────────────────
