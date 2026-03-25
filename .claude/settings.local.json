@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls:*)",
+      "Bash(cp:*)",
+      "Read(//private/tmp/**)",
+      "Bash(python3 -c \":*)",
+      "Bash(mkdir -p pptx_images)",
+      "Bash(python3:*)",
+      "Bash(open /tmp/pptx_preview.html)",
+      "Bash(open /tmp/sel_preview.html)",
+      "Bash(cp '/Users/yukun/Desktop/微信图片_20260324224109_79_109.jpg' /Users/yukun/Documents/chuyi-feiyi/public/pptx-imgs/stage_perf.jpg)",
+      "Bash(cp '/Users/yukun/Desktop/微信图片_20260324224110_80_109.jpg' /Users/yukun/Documents/chuyi-feiyi/public/pptx-imgs/news_dangui.jpg)",
+      "Bash(cp '/Users/kukun/Desktop/微信图片_20260324224110_81_109.jpg' /Users/yukun/Documents/chuyi-feiyi/public/pptx-imgs/news_mazu.jpg)",
+      "Bash(cp '/Users/yukun/Desktop/微信图片_20260324224110_81_109.jpg' /Users/yukun/Documents/chuyi-feiyi/public/pptx-imgs/news_mazu.jpg)",
+      "Bash(cp '/Users/yukun/Desktop/微信图片_20260324224112_82_109.jpg' /Users/yukun/Documents/chuyi-feiyi/public/pptx-imgs/culture_hall.jpg)",
+      "Bash(node --input-type=module --eval 'import\\(\"\"\"\"/Users/yukun/Documents/chuyi-feiyi/src/App.jsx\"\"\"\"\\)')",
+      "Bash(npx --yes acorn --ecma2020 --module src/App.jsx)",
+      "Bash(npx vite:*)",
+      "Bash(npx --yes vite build)",
+      "WebSearch",
+      "Bash(for url:*)",
+      "Bash(do echo:*)",
+      "Bash(curl -s -o /dev/null -w '%{http_code} %{content_type}\\\\n' \"$url\")",
+      "Bash(done)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}\\\\n' \"$url\")",
+      "WebFetch(domain:unsplash.com)",
+      "Bash(curl -sL 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=300&h=200&fit=crop&q=80' -o /tmp/p1.jpg)",
+      "Bash(__NEW_LINE_bff6443526ec8d8b__ curl:*)",
+      "Bash(__NEW_LINE_bff6443526ec8d8b__ echo:*)",
+      "WebFetch(domain:commons.wikimedia.org)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:baike.baidu.com)",
+      "WebFetch(domain:pixabay.com)",
+      "Bash(curl -sL 'https://images.unsplash.com/photo-1597484661973-ee6cd0b6482c?w=300&h=200&fit=crop&q=80' -o /tmp/c1.jpg)",
+      "Bash(__NEW_LINE_ccb6e3bd32a92a69__ curl:*)",
+      "Bash(__NEW_LINE_ccb6e3bd32a92a69__ echo:*)",
+      "Bash(__NEW_LINE_c5562eefa72d3d06__ cp:*)",
+      "Bash(__NEW_LINE_c5562eefa72d3d06__ echo:*)"
+    ]
+  }
+}
