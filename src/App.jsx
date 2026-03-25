@@ -2,6 +2,23 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import './App.css'
 import ClickEffect from './ClickEffect'
 
+// ── Scroll Reveal Hook ────────────────────────────────────────────────────
+function useScrollReveal(selector, routeName, options = {}) {
+  useEffect(() => {
+    const elements = document.querySelectorAll(selector)
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed')
+          observer.unobserve(entry.target)
+        }
+      })
+    }, { threshold: 0.12, ...options })
+    elements.forEach((el) => observer.observe(el))
+    return () => observer.disconnect()
+  }, [selector, routeName])
+}
+
 // ── Images ────────────────────────────────────────────────────────────────
 const IMG = {
   hero1: '/pptx-imgs/hero1.jpeg',
@@ -364,6 +381,12 @@ function App() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // ── Scroll Reveal ──
+  useScrollReveal('.section-heading', route.name)
+  useScrollReveal('.reveal-up', route.name)
+  useScrollReveal('.reveal-left', route.name)
+  useScrollReveal('.reveal-scale', route.name)
+
   // ── Memo ──
   const filteredProducts = useMemo(() => {
     const byKeyword = products.filter((item) => {
@@ -634,8 +657,19 @@ function App() {
           </div>
         </section>
 
+        {/* 习近平总书记名言 */}
+        <div className="xi-quote-banner reveal-scale">
+          <div className="xi-quote-inner">
+            <div className="xi-quote-icon">"</div>
+            <blockquote className="xi-quote-text">
+              要扎实做好非物质文化遗产的系统性保护，更好满足人民日益增长的精神文化需求，推进文化自信自强。
+            </blockquote>
+            <div className="xi-quote-author">——习近平总书记</div>
+          </div>
+        </div>
+
         {/* 精选作品 */}
-        <div className="section-heading">
+        <div className="section-heading reveal-heading">
           <div className="section-title-bracket">【 精选作品 】</div>
           <p className="section-subtitle-text">探索福建莆田梆鼓咚非物质文化遗产的魅力</p>
         </div>
@@ -646,7 +680,7 @@ function App() {
           </div>
           <div className="works-grid">
             {heritageWorks.slice(0, 4).map((work) => (
-              <a key={work.id} href="#/works" className="work-card">
+              <a key={work.id} href="#/works" className="work-card reveal-up">
                 <div className="work-card-img">
                   <img src={work.image} alt={work.title} />
                   <span className="work-badge">{work.badge}</span>
@@ -664,7 +698,7 @@ function App() {
         </div>
 
         {/* 传承人风采 */}
-        <div className="section-heading">
+        <div className="section-heading reveal-heading">
           <div className="section-title-bracket">【 传承人风采 】</div>
           <p className="section-subtitle-text">传承匠心，守护文化根脉</p>
         </div>
@@ -675,7 +709,7 @@ function App() {
           </div>
           <div className="inheritors-grid">
             {inheritorsData.slice(0, 4).map((person) => (
-              <div key={person.id} className="inheritor-card">
+              <div key={person.id} className="inheritor-card reveal-up">
                 <img
                   src={avatarUrl(person.name)}
                   alt={person.name}
@@ -698,7 +732,7 @@ function App() {
         </div>
 
         {/* 媒体报道 */}
-        <div className="section-heading">
+        <div className="section-heading reveal-heading">
           <div className="section-title-bracket">【 媒体报道 】</div>
           <p className="section-subtitle-text">权威媒体关注，梆鼓咚走向全国舞台</p>
         </div>
@@ -730,7 +764,7 @@ function App() {
                 desc: '以非遗传承为主题的数字文创插画，将梆鼓咚形象融入现代美学，让传统文化走进年轻群体。',
               },
             ].map((n) => (
-              <div key={n.id} className="activity-card">
+              <div key={n.id} className="news-card reveal-left">
                 <div className="activity-img">
                   <img src={n.img} alt={n.title} style={{ objectFit: 'cover', width: '100%', height: '100%' }} />
                   <span className="activity-status status-open">{n.source}</span>
@@ -746,7 +780,7 @@ function App() {
         </div>
 
         {/* 活动中心 */}
-        <div className="section-heading">
+        <div className="section-heading reveal-heading">
           <div className="section-title-bracket">【 近期活动 】</div>
           <p className="section-subtitle-text">探索梆鼓咚非遗文化活动与展演</p>
         </div>
@@ -757,7 +791,7 @@ function App() {
           </div>
           <div className="activities-grid">
             {activitiesData.map((act) => (
-              <div key={act.id} className="activity-card">
+              <div key={act.id} className="activity-card reveal-up">
                 <div className="activity-img">
                   <img src={act.image} alt={act.title} />
                   <span className={`activity-status ${act.status === '进行中' ? 'status-active' : 'status-open'}`}>{act.status}</span>

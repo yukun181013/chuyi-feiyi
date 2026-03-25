@@ -49,22 +49,23 @@ function qaProxyPlugin() {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${process.env.NVIDIA_API_KEY || ''}`,
+                Authorization: `Bearer ${process.env.NVIDIA_API_KEY || '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'}`,
               },
               body: JSON.stringify({
-                model: 'nvidia/nemotron-3-super-120b-a12b',
+                model: 'meta/llama-3.1-8b-instruct',
                 messages: [
                   {
                     role: 'system',
-                    content: '你是梆鼓咚非遗课程网站的 AI 助手。请用简洁、自然、面向学生和公众的中文回答，优先回答课程学习、非遗背景、传播方式、文创体验等问题。',
+                    content: '你是梆鼓咚非遗课程网站的 AI 助手。请用简洁、自然、面向学生和公众的中文直接回答，不要输出思考过程，优先回答课程学习、非遗背景、传播方式、文创体验等问题。',
                   },
                   { role: 'user', content: question },
                 ],
                 temperature: 0.7,
                 top_p: 0.95,
-                max_tokens: 1024,
+                max_tokens: 512,
                 stream: false,
               }),
+              signal: AbortSignal.timeout(30000),
             })
 
             const data = await upstream.json()
@@ -76,7 +77,8 @@ function qaProxyPlugin() {
               return
             }
 
-            const answer = data.choices?.[0]?.message?.content || '接口已连通，但本次没有返回可显示的文本内容。'
+            const msg = data.choices?.[0]?.message
+            const answer = msg?.content || msg?.reasoning_content || '接口已连通，但本次没有返回可显示的文本内容。'
 
             res.statusCode = 200
             res.setHeader('Content-Type', 'application/json')
