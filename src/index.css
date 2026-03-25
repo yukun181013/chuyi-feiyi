@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap');
 
 :root {
   color-scheme: light;
@@ -20,8 +20,8 @@
   --focus-ring: rgba(192, 57, 43, 0.25);
   --error: #c0392b;
   --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.08);
-  --font-body: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  --font-display: 'Noto Serif SC', 'STSong', serif;
+  --font-body: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', cursive;
+  --font-display: 'Ma Shan Zheng', 'STKaiti', 'KaiTi', cursive;
 
   font-family: var(--font-body);
   font-size: 16px;
