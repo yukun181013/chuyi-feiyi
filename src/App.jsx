@@ -654,7 +654,15 @@ function App() {
                   alt={person.name}
                   className="inheritor-avatar"
                 />
-                <div className="inheritor-name">{person.name}</div>
+                <div className="inheritor-name">
+                  <span
+                    className="inheritor-name-btn"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleInheritorClick(person.name)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleInheritorClick(person.name) } }}
+                  >{person.name}</span>
+                </div>
                 <div className="inheritor-title">{person.title}</div>
                 <div className="inheritor-location">◎ {person.location}</div>
               </div>
@@ -815,7 +823,15 @@ function App() {
             {inheritorsData.map((person) => (
               <div key={person.id} className="inheritor-card">
                 <img src={avatarUrl(person.name)} alt={person.name} className="inheritor-avatar" />
-                <div className="inheritor-name">{person.name}</div>
+                <div className="inheritor-name">
+                  <span
+                    className="inheritor-name-btn"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleInheritorClick(person.name)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleInheritorClick(person.name) } }}
+                  >{person.name}</span>
+                </div>
                 <div className="inheritor-title">{person.title}</div>
                 <div className="inheritor-location">◎ {person.location}</div>
               </div>
@@ -927,7 +943,15 @@ function App() {
             ].map((m) => (
               <div key={m.name} className="inheritor-card">
                 <img src={avatarUrl(m.name)} alt={m.name} className="inheritor-avatar" />
-                <div className="inheritor-name">{m.name}</div>
+                <div className="inheritor-name">
+                  <span
+                    className="inheritor-name-btn"
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => handleInheritorClick(m.name)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleInheritorClick(m.name) } }}
+                  >{m.name}</span>
+                </div>
                 <div className="inheritor-location" style={{ color: 'var(--primary)', fontWeight: 600, marginBottom: 4 }}>{m.role}</div>
                 <div className="inheritor-title">{m.title}</div>
               </div>
