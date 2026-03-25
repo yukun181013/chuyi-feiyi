@@ -1530,6 +1530,47 @@ function App() {
       {renderHeader()}
       <main className="portal-main">{renderPage()}</main>
       {renderFooter()}
+      {selectedInheritor && (
+        <div className="inheritor-overlay" onClick={handleClosePanel} />
+      )}
+      {selectedInheritor && (
+        <div
+          className={`inheritor-panel${isPanelOpen && !isPanelClosing ? ' inheritor-panel--open' : ''}${isPanelClosing ? ' inheritor-panel--closing' : ''}`}
+          onTransitionEnd={handlePanelTransitionEnd}
+        >
+          <div className="inheritor-panel-header">
+            <div className="inheritor-panel-name">{selectedInheritor.name}</div>
+            <button
+              className="inheritor-panel-close"
+              onClick={handleClosePanel}
+              aria-label="关闭传承人详情"
+              type="button"
+            >✕</button>
+          </div>
+          {selectedInheritor.title && (
+            <div className="inheritor-panel-title">{selectedInheritor.title}</div>
+          )}
+          {selectedInheritor.location && (
+            <div className="inheritor-panel-location">◎ {selectedInheritor.location}</div>
+          )}
+          <hr className="inheritor-panel-divider" />
+          <div className="inheritor-panel-section-title">传承经历</div>
+          {selectedInheritor.biography
+            ? <p className="inheritor-panel-bio">{selectedInheritor.biography}</p>
+            : <p className="inheritor-panel-empty">暂无详细资料</p>
+          }
+          <hr className="inheritor-panel-divider" />
+          <div className="inheritor-panel-section-title">主要成就</div>
+          {selectedInheritor.achievements && selectedInheritor.achievements.length > 0
+            ? (
+              <ul className="inheritor-panel-achievements">
+                {selectedInheritor.achievements.map((a, i) => <li key={i}>{a}</li>)}
+              </ul>
+            )
+            : <p className="inheritor-panel-empty">暂无详细资料</p>
+          }
+        </div>
+      )}
     </div>
   )
 }
