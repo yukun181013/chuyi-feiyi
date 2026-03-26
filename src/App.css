@@ -421,7 +421,7 @@
   pointer-events: none;
 }
 
-/* ── Hero instrument SVG decorations (interactive) ── */
+/* ── Hero instrument photo decorations (interactive) ── */
 .hero-instruments {
   position: absolute;
   inset: 0;
@@ -433,11 +433,12 @@
   position: absolute;
   pointer-events: auto;
   cursor: pointer;
-  transition: filter 0.2s, transform 0.2s;
+  transition: filter 0.3s, transform 0.3s;
 }
 
 .hero-instr:hover {
-  filter: drop-shadow(0 0 12px rgba(255, 210, 80, 0.6));
+  filter: drop-shadow(0 0 16px rgba(255, 210, 80, 0.7));
+  transform: scale(1.05);
 }
 
 .hero-instr:hover .hero-instr-label {
@@ -445,63 +446,94 @@
   transform: translateX(-50%) translateY(0);
 }
 
+/* 乐器实物图片容器 */
+.hero-instr-photo {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 210, 80, 0.35);
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255, 210, 80, 0.05);
+}
+
+.hero-instr-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+  transition: opacity 0.3s;
+}
+
+.hero-instr-photo:hover img {
+  opacity: 1;
+}
+
+.hero-instr-photo-left {
+  top: 50%;
+  left: 3%;
+  width: 180px;
+  height: 130px;
+  transform: translateY(-50%);
+  animation: heroPhotoFloat1 5s ease-in-out infinite;
+}
+
+.hero-instr-photo-right {
+  top: 50%;
+  right: 3%;
+  width: 180px;
+  height: 130px;
+  transform: translateY(-50%);
+  animation: heroPhotoFloat2 5.5s ease-in-out infinite 0.5s;
+}
+
+@keyframes heroPhotoFloat1 {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50% { transform: translateY(calc(-50% - 10px)) translateX(3px); }
+}
+@keyframes heroPhotoFloat2 {
+  0%, 100% { transform: translateY(-50%) translateX(0); }
+  50% { transform: translateY(calc(-50% + 8px)) translateX(-3px); }
+}
+
 /* 乐器名称标签 */
 .hero-instr-label {
   position: absolute;
-  bottom: -22px;
+  bottom: -28px;
   left: 50%;
   transform: translateX(-50%) translateY(4px);
   font-family: var(--font-display);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: #FFD700;
   white-space: nowrap;
   opacity: 0;
   transition: opacity 0.25s, transform 0.25s;
-  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+  text-shadow: 0 1px 8px rgba(0,0,0,0.7);
   pointer-events: none;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2px 10px;
+  border-radius: 10px;
 }
 
 /* 点击震动 + 光晕动画 */
 @keyframes instrHit {
-  0%   { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255, 210, 80, 0)); }
-  15%  { transform: scale(1.25); filter: drop-shadow(0 0 20px rgba(255, 210, 80, 0.8)); }
-  30%  { transform: scale(0.92); filter: drop-shadow(0 0 10px rgba(255, 210, 80, 0.5)); }
-  50%  { transform: scale(1.08); filter: drop-shadow(0 0 14px rgba(255, 210, 80, 0.4)); }
+  0%   { filter: drop-shadow(0 0 0 rgba(255, 210, 80, 0)); }
+  15%  { transform: scale(1.12); filter: drop-shadow(0 0 24px rgba(255, 210, 80, 0.9)); }
+  30%  { transform: scale(0.95); filter: drop-shadow(0 0 12px rgba(255, 210, 80, 0.5)); }
+  50%  { transform: scale(1.04); filter: drop-shadow(0 0 16px rgba(255, 210, 80, 0.4)); }
   100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255, 210, 80, 0)); }
 }
 
 .hero-instr-hit {
-  animation: instrHit 0.4s ease-out !important;
+  animation: instrHit 0.45s ease-out !important;
 }
-
-@keyframes heroFloat1 {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-12px) rotate(2deg); }
-}
-@keyframes heroFloat2 {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(10px) rotate(-2deg); }
-}
-@keyframes heroFloat3 {
-  0%, 100% { transform: translateY(0) rotate(0deg); }
-  50% { transform: translateY(-8px) rotate(-1.5deg); }
-}
-@keyframes heroFloat4 {
-  0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50% { transform: translateY(8px) rotate(5deg); }
-}
-
-.hero-instr-drum     { top: 12%; left: 4%;  animation: heroFloat1 4.5s ease-in-out infinite; }
-.hero-instr-xingmu   { bottom: 18%; left: 6%; animation: heroFloat2 5s ease-in-out infinite 0.5s; }
-.hero-instr-sm-drum  { top: 55%; left: 2%;  animation: heroFloat4 6s ease-in-out infinite 1.5s; opacity: 0.5; }
-.hero-instr-bangzi   { top: 14%; right: 4%; animation: heroFloat3 4s ease-in-out infinite 1s; }
-.hero-instr-zhuban   { bottom: 16%; right: 5%; animation: heroFloat4 5.5s ease-in-out infinite 0.3s; }
-.hero-instr-sm-bang  { top: 50%; right: 2%; animation: heroFloat1 5s ease-in-out infinite 2s; opacity: 0.5; }
 
 @media (max-width: 768px) {
-  .hero-instr { transform: scale(0.6); opacity: 0.5; }
-  .hero-instr-sm-drum, .hero-instr-sm-bang { display: none; }
-  .hero-instr-label { font-size: 0.7rem; }
+  .hero-instr-photo-left,
+  .hero-instr-photo-right {
+    width: 120px;
+    height: 85px;
+  }
+  .hero-instr-label { font-size: 0.75rem; }
 }
 
 @media (max-width: 480px) {
