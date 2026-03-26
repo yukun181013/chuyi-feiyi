@@ -165,7 +165,7 @@ const IMG = {
   modDrama: '/pptx-imgs/mod2.png',
   modDigital: '/pptx-imgs/mod3.png',
   prod1: '/pptx-imgs/banggu_drawing.jpg',
-  prod2: '/pptx-imgs/mall_diy_kit.png',
+  prod2: '/pptx-imgs/mall_diy_kit.jpg',
   prod3: '/pptx-imgs/banggu_instruments.jpg',
   prod4: '/pptx-imgs/mall_knot.jpg',
   prod5: '/pptx-imgs/mall_ceramic.jpg',
