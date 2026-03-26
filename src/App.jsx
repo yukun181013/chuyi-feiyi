@@ -164,12 +164,12 @@ const IMG = {
   modCommunity: '/pptx-imgs/mod1.jpeg',
   modDrama: '/pptx-imgs/mod2.png',
   modDigital: '/pptx-imgs/mod3.png',
-  prod1: '/pptx-imgs/mall_jianzhi.jpg',
-  prod2: '/pptx-imgs/mall_embroidery.jpg',
-  prod3: '/pptx-imgs/mall_lacquer.jpg',
+  prod1: '/pptx-imgs/banggu_drawing.jpg',
+  prod2: '/pptx-imgs/banggu_instruments.jpg',
+  prod3: '/pptx-imgs/candidate1.jpg',
   prod4: '/pptx-imgs/mall_knot.jpg',
-  prod5: '/pptx-imgs/mall_porcelain.jpg',
-  prod6: '/pptx-imgs/mall_cloisonne.jpg',
+  prod5: '/pptx-imgs/mall_cloisonne.jpg',
+  prod6: '/pptx-imgs/candidate7.jpg',
   course1: '/pptx-imgs/heritage2.png',
   course2: '/pptx-imgs/mod2.png',
   course3: '/pptx-imgs/mod3.png',
@@ -215,15 +215,15 @@ const announcements = [
 ]
 
 const products = [
-  { id: 1, name: '铁岭剪纸团扇', price: 38.0, originalPrice: 48, category: '传统美术', tags: ['艺术原创', '复古风格'], stock: 120, sales: 500, image: IMG.prod1, desc: '铁岭剪纸市级非遗传承人手作，十二生肖剪纸与团扇结合，图案精美，适合收藏或作为文化礼品。' },
-  { id: 2, name: '苗族刺绣工艺品', price: 268.0, originalPrice: 320, category: '传统技艺', tags: ['手工艺术', '复古风格'], stock: 45, sales: 212, image: IMG.prod2, desc: '云南苗族传统刺绣，以天然丝线手工绣制，纹样源自苗族神话图腾，是国家级非遗代表作品。' },
-  { id: 3, name: '元代剔红雕漆屏风', price: 6800.0, originalPrice: 8500, category: '传统技艺', tags: ['手工艺术', '现代艺术'], stock: 8, sales: 15, image: IMG.prod3, desc: '采用传统雕漆髹饰技艺，以梅兰竹菊为主题，经多道工序精制而成，适合高端文化陈设与礼赠。' },
-  { id: 4, name: '十二生肖剪纸挂件', price: 26.0, originalPrice: 38, category: '传统美术', tags: ['艺术原创', '个性化定制'], stock: 300, sales: 640, image: IMG.prod4, desc: '辽宁省剪纸技艺非遗传承人作品，十二生肖形象生动，可作为团扇挂件或节日装饰。' },
-  { id: 5, name: '手指画团扇《事事如意》', price: 100.0, originalPrice: 129.6, category: '传统美术', tags: ['艺术原创', '城市风景'], stock: 60, sales: 188, image: IMG.prod5, desc: '省级非遗项目手指画技艺传承人任刚创作，以手指蘸墨写就，扇面意境悠远，独一无二。' },
-  { id: 6, name: '景泰蓝工艺摆件', price: 199.0, originalPrice: 260, category: '传统技艺', tags: ['现代艺术', '创意家居'], stock: 30, sales: 98, image: IMG.prod6, desc: '北京珐琅厂国家级非遗景泰蓝技艺制作，铜胎掐丝填蓝，色彩绚丽，是典型的宫廷传统工艺精品。' },
+  { id: 1, name: '梆鼓咚科普绘本', price: 58.0, originalPrice: 78, category: '文化读物', tags: ['文化教育', '亲子读物'], stock: 200, sales: 860, image: IMG.prod1, desc: '以梆鼓咚为主题的原创科普绘本，图文并茂讲述千年鼓乐故事，配有莆仙方言注音，适合亲子共读与文化启蒙。' },
+  { id: 2, name: '梆鼓咚DIY材料包', price: 45.0, originalPrice: 68, category: '手工材料', tags: ['手工体验', '文化教育'], stock: 150, sales: 520, image: IMG.prod2, desc: '含竹筒、蒙皮、彩色缎带等全套材料，附教学手册与视频教程，亲手制作一面属于自己的板鼓，体验非遗传承乐趣。' },
+  { id: 3, name: '梆鼓咚超轻粘土套装', price: 36.0, originalPrice: 48, category: '手工材料', tags: ['手工体验', '亲子读物'], stock: 300, sales: 720, image: IMG.prod3, desc: '12色超轻粘土搭配板鼓、竹板模具，附图解说明书，可捏制迷你梆鼓咚乐器全套，适合儿童手工课与亲子活动。' },
+  { id: 4, name: '梆鼓咚板鼓迷你挂件', price: 28.0, originalPrice: 38, category: '文创周边', tags: ['文创礼品', '随身配饰'], stock: 500, sales: 1200, image: IMG.prod4, desc: '精致缩小版板鼓造型挂件，手工编织彩色缎带流苏，可挂书包、钥匙扣，既是装饰也是非遗文化的随身名片。' },
+  { id: 5, name: '梆鼓咚陶瓷乐器摆件', price: 198.0, originalPrice: 258, category: '文创周边', tags: ['文创礼品', '收藏品'], stock: 60, sales: 156, image: IMG.prod5, desc: '非遗传承人监制，以陶瓷还原板鼓与竹板造型，釉色温润，底座刻有梆鼓咚简介，是馈赠与收藏的文化精品。' },
+  { id: 6, name: '梆鼓咚主题帆布包', price: 68.0, originalPrice: 88, category: '生活文创', tags: ['文创礼品', '随身配饰'], stock: 180, sales: 390, image: IMG.prod6, desc: '以梆鼓咚科普绘本插画为设计元素，帆布材质环保耐用，印有板鼓图案与莆田方言趣味标语，日常出行百搭实用。' },
 ]
 
-const mallTags = ['全部', '城市风景', '艺术原创', '复古风格', '手工艺术', '环保设计', '动漫风格', '文艺风格', '创意家居', '现代艺术', '个性化定制']
+const mallTags = ['全部', '文化教育', '手工体验', '文创礼品', '亲子读物', '随身配饰', '收藏品']
 
 
 const defaultQuestion = '梆鼓咚适合什么年龄段的学生开始学习？'
