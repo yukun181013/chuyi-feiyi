@@ -82,21 +82,40 @@ function playBangzi() {
 
 function playZhuban() {
   const ctx = getAudioCtx(), t = ctx.currentTime
-  // 清脆拍击 — 噪声 + 高频
-  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.06, ctx.sampleRate)
-  const data = buf.getChannelData(0)
-  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.6
-  const noise = ctx.createBufferSource()
-  const filt = ctx.createBiquadFilter()
-  const gain = ctx.createGain()
-  noise.buffer = buf
-  filt.type = 'highpass'
-  filt.frequency.value = 2000
-  gain.gain.setValueAtTime(0.6, t)
-  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1)
-  noise.connect(filt).connect(gain).connect(ctx.destination)
-  noise.start(t)
-  // 木板谐振
+  // 快板风格 — 两片竹板连续拍击，清脆短促
+  const hit = (time) => {
+    // 高频噪声：竹片碰撞
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.035, ctx.sampleRate)
+    const data = buf.getChannelData(0)
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.7
+    const noise = ctx.createBufferSource()
+    const bp = ctx.createBiquadFilter()
+    const gain = ctx.createGain()
+    noise.buffer = buf
+    bp.type = 'bandpass'
+    bp.frequency.value = 3500
+    bp.Q.value = 2.5
+    gain.gain.setValueAtTime(0.7, time)
+    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05)
+    noise.connect(bp).connect(gain).connect(ctx.destination)
+    noise.start(time)
+    // 竹片谐振 — 清脆高音
+    const osc = ctx.createOscillator()
+    const og = ctx.createGain()
+    osc.type = 'triangle'
+    osc.frequency.setValueAtTime(2200, time)
+    osc.frequency.exponentialRampToValueAtTime(1100, time + 0.03)
+    og.gain.setValueAtTime(0.35, time)
+    og.gain.exponentialRampToValueAtTime(0.01, time + 0.04)
+    osc.connect(og).connect(ctx.destination)
+    osc.start(time)
+    osc.stop(time + 0.04)
+  }
+  // 快板节奏：嗒-嗒嗒（三连击）
+  hit(t)
+  hit(t + 0.08)
+  hit(t + 0.14)
+  // 尾音木板谐振
   const osc = ctx.createOscillator()
   const g2 = ctx.createGain()
   osc.type = 'triangle'
@@ -780,10 +799,10 @@ function App() {
               <img src={IMG.bangguInstruments} alt="梆鼓咚乐器 — 板鼓与竹板" />
               <span className="hero-instr-label">点击试听 · 板鼓</span>
             </div>
-            <div className="hero-instr hero-instr-photo hero-instr-photo-right" title="梆鼓咚演奏"
-              onClick={(e) => { e.stopPropagation(); playBangzi(); e.currentTarget.classList.remove('hero-instr-hit'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('hero-instr-hit') }}>
+            <div className="hero-instr hero-instr-photo hero-instr-photo-right" title="竹板"
+              onClick={(e) => { e.stopPropagation(); playZhuban(); e.currentTarget.classList.remove('hero-instr-hit'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('hero-instr-hit') }}>
               <img src={IMG.bangguDrawing} alt="梆鼓咚民俗演奏线描" />
-              <span className="hero-instr-label">点击试听 · 梆子</span>
+              <span className="hero-instr-label">点击试听 · 竹板</span>
             </div>
           </div>
           <div className="hero-inner">
