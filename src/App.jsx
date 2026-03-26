@@ -167,7 +167,7 @@ const IMG = {
   prod1: '/pptx-imgs/banggu_drawing.jpg',
   prod2: '/pptx-imgs/mall_diy_kit.jpg',
   prod3: '/pptx-imgs/banggu_instruments.jpg',
-  prod4: '/pptx-imgs/mall_knot.jpg',
+  prod4: '/pptx-imgs/mall_pendant.jpg',
   prod5: '/pptx-imgs/mall_ceramic.jpg',
   prod6: '/pptx-imgs/mall_tote.jpg',
   course1: '/pptx-imgs/heritage2.png',
