@@ -421,6 +421,93 @@
   pointer-events: none;
 }
 
+/* ── Hero instrument SVG decorations (interactive) ── */
+.hero-instruments {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.hero-instr {
+  position: absolute;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: filter 0.2s, transform 0.2s;
+}
+
+.hero-instr:hover {
+  filter: drop-shadow(0 0 12px rgba(255, 210, 80, 0.6));
+}
+
+.hero-instr:hover .hero-instr-label {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 乐器名称标签 */
+.hero-instr-label {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: #FFD700;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.25s, transform 0.25s;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.6);
+  pointer-events: none;
+}
+
+/* 点击震动 + 光晕动画 */
+@keyframes instrHit {
+  0%   { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255, 210, 80, 0)); }
+  15%  { transform: scale(1.25); filter: drop-shadow(0 0 20px rgba(255, 210, 80, 0.8)); }
+  30%  { transform: scale(0.92); filter: drop-shadow(0 0 10px rgba(255, 210, 80, 0.5)); }
+  50%  { transform: scale(1.08); filter: drop-shadow(0 0 14px rgba(255, 210, 80, 0.4)); }
+  100% { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255, 210, 80, 0)); }
+}
+
+.hero-instr-hit {
+  animation: instrHit 0.4s ease-out !important;
+}
+
+@keyframes heroFloat1 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(2deg); }
+}
+@keyframes heroFloat2 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(10px) rotate(-2deg); }
+}
+@keyframes heroFloat3 {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-1.5deg); }
+}
+@keyframes heroFloat4 {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(8px) rotate(5deg); }
+}
+
+.hero-instr-drum     { top: 12%; left: 4%;  animation: heroFloat1 4.5s ease-in-out infinite; }
+.hero-instr-xingmu   { bottom: 18%; left: 6%; animation: heroFloat2 5s ease-in-out infinite 0.5s; }
+.hero-instr-sm-drum  { top: 55%; left: 2%;  animation: heroFloat4 6s ease-in-out infinite 1.5s; opacity: 0.5; }
+.hero-instr-bangzi   { top: 14%; right: 4%; animation: heroFloat3 4s ease-in-out infinite 1s; }
+.hero-instr-zhuban   { bottom: 16%; right: 5%; animation: heroFloat4 5.5s ease-in-out infinite 0.3s; }
+.hero-instr-sm-bang  { top: 50%; right: 2%; animation: heroFloat1 5s ease-in-out infinite 2s; opacity: 0.5; }
+
+@media (max-width: 768px) {
+  .hero-instr { transform: scale(0.6); opacity: 0.5; }
+  .hero-instr-sm-drum, .hero-instr-sm-bang { display: none; }
+  .hero-instr-label { font-size: 0.7rem; }
+}
+
+@media (max-width: 480px) {
+  .hero-instruments { display: none; }
+}
+
 .hero-inner {
   max-width: 680px;
   position: relative;

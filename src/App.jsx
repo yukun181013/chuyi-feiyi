@@ -19,6 +19,134 @@ function useScrollReveal(selector, routeName, options = {}) {
   }, [selector, routeName])
 }
 
+// ── Instrument Audio (Web Audio API synthesis) ────────────────────────────
+const audioCtxRef = { current: null }
+function getAudioCtx() {
+  if (!audioCtxRef.current) audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)()
+  const ctx = audioCtxRef.current
+  if (ctx.state === 'suspended') ctx.resume()
+  return ctx
+}
+
+function playDrum() {
+  const ctx = getAudioCtx(), t = ctx.currentTime
+  // 低频鼓声
+  const osc = ctx.createOscillator()
+  const gain = ctx.createGain()
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(150, t)
+  osc.frequency.exponentialRampToValueAtTime(40, t + 0.15)
+  gain.gain.setValueAtTime(0.8, t)
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4)
+  osc.connect(gain).connect(ctx.destination)
+  osc.start(t)
+  osc.stop(t + 0.4)
+  // 噪声层
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.08, ctx.sampleRate)
+  const data = buf.getChannelData(0)
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.3
+  const noise = ctx.createBufferSource()
+  const ng = ctx.createGain()
+  noise.buffer = buf
+  ng.gain.setValueAtTime(0.5, t)
+  ng.gain.exponentialRampToValueAtTime(0.01, t + 0.08)
+  noise.connect(ng).connect(ctx.destination)
+  noise.start(t)
+}
+
+function playBangzi() {
+  const ctx = getAudioCtx(), t = ctx.currentTime
+  // 高频木质敲击
+  const osc = ctx.createOscillator()
+  const gain = ctx.createGain()
+  osc.type = 'square'
+  osc.frequency.setValueAtTime(800, t)
+  osc.frequency.exponentialRampToValueAtTime(300, t + 0.06)
+  gain.gain.setValueAtTime(0.4, t)
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.12)
+  osc.connect(gain).connect(ctx.destination)
+  osc.start(t)
+  osc.stop(t + 0.12)
+  // 木质谐波
+  const osc2 = ctx.createOscillator()
+  const g2 = ctx.createGain()
+  osc2.type = 'triangle'
+  osc2.frequency.setValueAtTime(1200, t)
+  osc2.frequency.exponentialRampToValueAtTime(600, t + 0.05)
+  g2.gain.setValueAtTime(0.25, t)
+  g2.gain.exponentialRampToValueAtTime(0.01, t + 0.08)
+  osc2.connect(g2).connect(ctx.destination)
+  osc2.start(t)
+  osc2.stop(t + 0.08)
+}
+
+function playZhuban() {
+  const ctx = getAudioCtx(), t = ctx.currentTime
+  // 清脆拍击 — 噪声 + 高频
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.06, ctx.sampleRate)
+  const data = buf.getChannelData(0)
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.6
+  const noise = ctx.createBufferSource()
+  const filt = ctx.createBiquadFilter()
+  const gain = ctx.createGain()
+  noise.buffer = buf
+  filt.type = 'highpass'
+  filt.frequency.value = 2000
+  gain.gain.setValueAtTime(0.6, t)
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1)
+  noise.connect(filt).connect(gain).connect(ctx.destination)
+  noise.start(t)
+  // 木板谐振
+  const osc = ctx.createOscillator()
+  const g2 = ctx.createGain()
+  osc.type = 'triangle'
+  osc.frequency.setValueAtTime(1800, t)
+  osc.frequency.exponentialRampToValueAtTime(900, t + 0.04)
+  g2.gain.setValueAtTime(0.3, t)
+  g2.gain.exponentialRampToValueAtTime(0.01, t + 0.06)
+  osc.connect(g2).connect(ctx.destination)
+  osc.start(t)
+  osc.stop(t + 0.06)
+}
+
+function playXingmu() {
+  const ctx = getAudioCtx(), t = ctx.currentTime
+  // 短促有力 — 木块敲击
+  const osc = ctx.createOscillator()
+  const gain = ctx.createGain()
+  osc.type = 'square'
+  osc.frequency.setValueAtTime(500, t)
+  osc.frequency.exponentialRampToValueAtTime(200, t + 0.04)
+  gain.gain.setValueAtTime(0.6, t)
+  gain.gain.exponentialRampToValueAtTime(0.01, t + 0.08)
+  osc.connect(gain).connect(ctx.destination)
+  osc.start(t)
+  osc.stop(t + 0.08)
+  // 击打噪声
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 0.03, ctx.sampleRate)
+  const data = buf.getChannelData(0)
+  for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.5
+  const noise = ctx.createBufferSource()
+  const ng = ctx.createGain()
+  noise.buffer = buf
+  ng.gain.setValueAtTime(0.5, t)
+  ng.gain.exponentialRampToValueAtTime(0.01, t + 0.03)
+  noise.connect(ng).connect(ctx.destination)
+  noise.start(t)
+}
+
+const INSTR_SOUNDS = {
+  drum: playDrum, 'sm-drum': playDrum,
+  bangzi: playBangzi, 'sm-bang': playBangzi,
+  zhuban: playZhuban, xingmu: playXingmu,
+}
+
+const INSTR_NAMES = {
+  drum: '鼓', 'sm-drum': '小鼓',
+  bangzi: '梆子', 'sm-bang': '梆子',
+  zhuban: '竹板', xingmu: '醒木',
+}
+
 // ── Images ────────────────────────────────────────────────────────────────
 const IMG = {
   hero1: '/pptx-imgs/hero1.jpeg',
@@ -642,6 +770,24 @@ function App() {
           ))}
           <div className="hero-carousel-overlay" aria-hidden="true" />
           <div className="hero-cloud-bottom" aria-hidden="true" />
+
+          {/* 乐器装饰 SVG — 可点击发声 */}
+          <div className="hero-instruments">
+            {[
+              { id: 'drum', cls: 'hero-instr-drum', w: 120, h: 100, vb: '0 0 120 100', paths: <><ellipse cx="60" cy="75" rx="48" ry="14" stroke="rgba(255,210,80,0.4)" strokeWidth="1.5" fill="rgba(255,210,80,0.05)"/><ellipse cx="60" cy="35" rx="48" ry="14" stroke="rgba(255,210,80,0.5)" strokeWidth="1.5" fill="rgba(255,210,80,0.08)"/><line x1="12" y1="35" x2="12" y2="75" stroke="rgba(255,210,80,0.4)" strokeWidth="1.5"/><line x1="108" y1="35" x2="108" y2="75" stroke="rgba(255,210,80,0.4)" strokeWidth="1.5"/><path d="M20 50 Q40 44 60 50 Q80 56 100 50" stroke="rgba(255,210,80,0.25)" strokeWidth="1" fill="none"/><path d="M20 60 Q40 54 60 60 Q80 66 100 60" stroke="rgba(255,210,80,0.25)" strokeWidth="1" fill="none"/><circle cx="24" cy="35" r="2" fill="rgba(255,210,80,0.5)"/><circle cx="48" cy="28" r="2" fill="rgba(255,210,80,0.5)"/><circle cx="72" cy="28" r="2" fill="rgba(255,210,80,0.5)"/><circle cx="96" cy="35" r="2" fill="rgba(255,210,80,0.5)"/><line x1="40" y1="10" x2="55" y2="30" stroke="rgba(255,210,80,0.5)" strokeWidth="2" strokeLinecap="round"/><circle cx="38" cy="8" r="4" fill="rgba(255,210,80,0.3)" stroke="rgba(255,210,80,0.5)" strokeWidth="1"/><line x1="80" y1="8" x2="68" y2="30" stroke="rgba(255,210,80,0.5)" strokeWidth="2" strokeLinecap="round"/><circle cx="82" cy="6" r="4" fill="rgba(255,210,80,0.3)" stroke="rgba(255,210,80,0.5)" strokeWidth="1"/></> },
+              { id: 'xingmu', cls: 'hero-instr-xingmu', w: 80, h: 60, vb: '0 0 80 60', paths: <><rect x="10" y="20" width="55" height="22" rx="3" stroke="rgba(255,210,80,0.45)" strokeWidth="1.5" fill="rgba(255,210,80,0.06)"/><line x1="10" y1="20" x2="18" y2="13" stroke="rgba(255,210,80,0.3)" strokeWidth="1"/><line x1="65" y1="20" x2="73" y2="13" stroke="rgba(255,210,80,0.3)" strokeWidth="1"/><line x1="18" y1="13" x2="73" y2="13" stroke="rgba(255,210,80,0.35)" strokeWidth="1.5"/><line x1="73" y1="13" x2="73" y2="35" stroke="rgba(255,210,80,0.3)" strokeWidth="1"/><line x1="20" y1="26" x2="55" y2="26" stroke="rgba(255,210,80,0.15)" strokeWidth="0.5"/><line x1="18" y1="31" x2="58" y2="31" stroke="rgba(255,210,80,0.15)" strokeWidth="0.5"/><line x1="22" y1="36" x2="52" y2="36" stroke="rgba(255,210,80,0.15)" strokeWidth="0.5"/></> },
+              { id: 'sm-drum', cls: 'hero-instr-sm-drum', w: 60, h: 50, vb: '0 0 60 50', paths: <><ellipse cx="30" cy="38" rx="24" ry="7" stroke="rgba(255,210,80,0.3)" strokeWidth="1" fill="rgba(255,210,80,0.03)"/><ellipse cx="30" cy="18" rx="24" ry="7" stroke="rgba(255,210,80,0.35)" strokeWidth="1" fill="rgba(255,210,80,0.05)"/><line x1="6" y1="18" x2="6" y2="38" stroke="rgba(255,210,80,0.3)" strokeWidth="1"/><line x1="54" y1="18" x2="54" y2="38" stroke="rgba(255,210,80,0.3)" strokeWidth="1"/><path d="M12 26 Q30 22 48 26" stroke="rgba(255,210,80,0.15)" strokeWidth="0.8" fill="none"/></> },
+              { id: 'bangzi', cls: 'hero-instr-bangzi', w: 90, h: 80, vb: '0 0 90 80', paths: <><rect x="15" y="5" width="16" height="65" rx="4" stroke="rgba(255,210,80,0.45)" strokeWidth="1.5" fill="rgba(255,210,80,0.06)" transform="rotate(-8 23 37)"/><rect x="38" y="5" width="16" height="65" rx="4" stroke="rgba(255,210,80,0.45)" strokeWidth="1.5" fill="rgba(255,210,80,0.06)" transform="rotate(8 46 37)"/><path d="M22 15 Q35 12 48 15" stroke="rgba(255,210,80,0.35)" strokeWidth="1.2" fill="none"/><path d="M22 20 Q35 17 48 20" stroke="rgba(255,210,80,0.25)" strokeWidth="0.8" fill="none"/><line x1="18" y1="30" x2="28" y2="28" stroke="rgba(255,210,80,0.15)" strokeWidth="0.5"/><line x1="18" y1="45" x2="28" y2="43" stroke="rgba(255,210,80,0.15)" strokeWidth="0.5"/><line x1="41" y1="30" x2="51" y2="32" stroke="rgba(255,210,80,0.15)" strokeWidth="0.5"/><line x1="41" y1="45" x2="51" y2="47" stroke="rgba(255,210,80,0.15)" strokeWidth="0.5"/></> },
+              { id: 'zhuban', cls: 'hero-instr-zhuban', w: 100, h: 70, vb: '0 0 100 70', paths: <><rect x="10" y="8" width="14" height="55" rx="3" stroke="rgba(255,210,80,0.4)" strokeWidth="1.5" fill="rgba(255,210,80,0.05)" transform="rotate(-12 17 35)"/><rect x="30" y="5" width="14" height="58" rx="3" stroke="rgba(255,210,80,0.45)" strokeWidth="1.5" fill="rgba(255,210,80,0.07)"/><rect x="50" y="8" width="14" height="55" rx="3" stroke="rgba(255,210,80,0.4)" strokeWidth="1.5" fill="rgba(255,210,80,0.05)" transform="rotate(12 57 35)"/><path d="M15 12 Q37 6 58 12" stroke="rgba(255,210,80,0.3)" strokeWidth="1" fill="none"/><line x1="13" y1="30" x2="22" y2="27" stroke="rgba(255,210,80,0.12)" strokeWidth="0.5"/><line x1="33" y1="28" x2="41" y2="28" stroke="rgba(255,210,80,0.12)" strokeWidth="0.5"/><line x1="53" y1="30" x2="61" y2="33" stroke="rgba(255,210,80,0.12)" strokeWidth="0.5"/></> },
+              { id: 'sm-bang', cls: 'hero-instr-sm-bang', w: 50, h: 55, vb: '0 0 50 55', paths: <><rect x="8" y="5" width="12" height="42" rx="3" stroke="rgba(255,210,80,0.3)" strokeWidth="1" fill="rgba(255,210,80,0.04)" transform="rotate(-5 14 26)"/><rect x="24" y="5" width="12" height="42" rx="3" stroke="rgba(255,210,80,0.3)" strokeWidth="1" fill="rgba(255,210,80,0.04)" transform="rotate(5 30 26)"/><path d="M12 10 Q22 7 32 10" stroke="rgba(255,210,80,0.2)" strokeWidth="0.8" fill="none"/></> },
+            ].map((inst) => (
+              <div key={inst.id} className={`hero-instr ${inst.cls}`} title={INSTR_NAMES[inst.id]}
+                onClick={(e) => { e.stopPropagation(); INSTR_SOUNDS[inst.id](); e.currentTarget.classList.remove('hero-instr-hit'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('hero-instr-hit') }}>
+                <svg width={inst.w} height={inst.h} viewBox={inst.vb} fill="none">{inst.paths}</svg>
+                <span className="hero-instr-label">{INSTR_NAMES[inst.id]}</span>
+              </div>
+            ))}
+          </div>
           <div className="hero-inner">
             <h1 className="hero-title">梆鼓咚 · 莆田非遗</h1>
             <p className="hero-subtitle">{heroSlides[heroSlide].subtitle}</p>
