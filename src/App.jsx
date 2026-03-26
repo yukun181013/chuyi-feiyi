@@ -674,26 +674,44 @@ function App() {
         <div className="nav-inner">
           <a className="portal-logo" href="#/home" aria-label="梆鼓咚非遗门户首页">
             <span className="logo-emblem">
-              <svg width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                {/* Outer octagon ring */}
-                <polygon points="21,2 32,6 40,15 40,27 32,36 21,40 10,36 2,27 2,15 10,6" fill="url(#logoGrad)" stroke="#FFD700" strokeWidth="0.8"/>
-                {/* Inner circle */}
-                <circle cx="21" cy="21" r="12" fill="rgba(0,0,0,0.25)" stroke="#FFD700" strokeWidth="0.6"/>
-                {/* Drum horizontal lines (banggu motif) */}
-                <line x1="14" y1="18" x2="28" y2="18" stroke="#FFD700" strokeWidth="1" strokeLinecap="round"/>
-                <line x1="14" y1="21" x2="28" y2="21" stroke="#FFD700" strokeWidth="1.5" strokeLinecap="round"/>
-                <line x1="14" y1="24" x2="28" y2="24" stroke="#FFD700" strokeWidth="1" strokeLinecap="round"/>
-                {/* Corner cloud/ruyi decorations */}
-                <circle cx="21" cy="9" r="1.2" fill="#FFD700"/>
-                <circle cx="21" cy="33" r="1.2" fill="#FFD700"/>
-                <circle cx="9" cy="21" r="1.2" fill="#FFD700"/>
-                <circle cx="33" cy="21" r="1.2" fill="#FFD700"/>
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                 <defs>
-                  <linearGradient id="logoGrad" x1="0" y1="0" x2="42" y2="42" gradientUnits="userSpaceOnUse">
+                  <linearGradient id="logoGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
                     <stop offset="0%" stopColor="#C0392B"/>
                     <stop offset="100%" stopColor="#7B0D0D"/>
                   </linearGradient>
+                  <radialGradient id="drumFace" cx="24" cy="22" r="14" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="#F5DEB3" stopOpacity="0.9"/>
+                    <stop offset="80%" stopColor="#D2B48C" stopOpacity="0.7"/>
+                    <stop offset="100%" stopColor="#8B7355" stopOpacity="0.5"/>
+                  </radialGradient>
                 </defs>
+                {/* 外圈 — 祥云纹圆环 */}
+                <circle cx="24" cy="24" r="22" fill="url(#logoGrad)" stroke="#FFD700" strokeWidth="1"/>
+                <circle cx="24" cy="24" r="19.5" fill="none" stroke="#FFD700" strokeWidth="0.4" strokeDasharray="2.5 1.8" opacity="0.6"/>
+                {/* 祥云装饰 — 四角 */}
+                <path d="M24 3.5 Q26 5.5 24 6.5 Q22 5.5 24 3.5Z" fill="#FFD700" opacity="0.7"/>
+                <path d="M24 44.5 Q26 42.5 24 41.5 Q22 42.5 24 44.5Z" fill="#FFD700" opacity="0.7"/>
+                <path d="M3.5 24 Q5.5 22 6.5 24 Q5.5 26 3.5 24Z" fill="#FFD700" opacity="0.7"/>
+                <path d="M44.5 24 Q42.5 22 41.5 24 Q42.5 26 44.5 24Z" fill="#FFD700" opacity="0.7"/>
+                {/* 鼓面 — 俯视图 */}
+                <ellipse cx="24" cy="22" rx="13" ry="11" fill="url(#drumFace)" stroke="#FFD700" strokeWidth="0.8"/>
+                {/* 鼓钉环 */}
+                {[0,30,60,90,120,150,180,210,240,270,300,330].map((a) => (
+                  <circle key={a} cx={24 + 12 * Math.cos(a * Math.PI / 180)} cy={22 + 10 * Math.sin(a * Math.PI / 180)} r="1" fill="#FFD700" opacity="0.8"/>
+                ))}
+                {/* 鼓面中心纹样 — 太极/漩涡 */}
+                <path d="M21 19 Q24 16 27 19 Q24 22 21 19Z" fill="none" stroke="#8B4513" strokeWidth="0.6" opacity="0.5"/>
+                <path d="M21 25 Q24 28 27 25 Q24 22 21 25Z" fill="none" stroke="#8B4513" strokeWidth="0.6" opacity="0.5"/>
+                <circle cx="24" cy="22" r="1.5" fill="none" stroke="#8B4513" strokeWidth="0.5" opacity="0.4"/>
+                {/* 鼓槌 — 交叉 */}
+                <line x1="15" y1="34" x2="22" y2="26" stroke="#FFD700" strokeWidth="1.8" strokeLinecap="round"/>
+                <circle cx="14.2" cy="35" r="2.2" fill="#FFD700" opacity="0.8"/>
+                <line x1="33" y1="34" x2="26" y2="26" stroke="#FFD700" strokeWidth="1.8" strokeLinecap="round"/>
+                <circle cx="33.8" cy="35" r="2.2" fill="#FFD700" opacity="0.8"/>
+                {/* 竹板 — 右侧小装饰 */}
+                <rect x="36" y="12" width="3" height="12" rx="1.2" fill="#FFD700" opacity="0.5" transform="rotate(10 37.5 18)"/>
+                <rect x="39" y="11" width="3" height="12" rx="1.2" fill="#FFD700" opacity="0.4" transform="rotate(15 40.5 17)"/>
               </svg>
             </span>
             <span className="logo-text">
