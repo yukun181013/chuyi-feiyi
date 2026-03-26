@@ -169,7 +169,7 @@ const IMG = {
   prod3: '/pptx-imgs/banggu_instruments.jpg',
   prod4: '/pptx-imgs/mall_pendant.jpg',
   prod5: '/pptx-imgs/mall_ceramic.jpg',
-  prod6: '/pptx-imgs/mall_tote.jpg',
+  prod6: '/pptx-imgs/mall_album.jpg',
   course1: '/pptx-imgs/heritage2.png',
   course2: '/pptx-imgs/mod2.png',
   course3: '/pptx-imgs/mod3.png',
@@ -220,7 +220,7 @@ const products = [
   { id: 3, name: '梆鼓咚超轻粘土套装', price: 36.0, originalPrice: 48, category: '手工材料', tags: ['手工体验', '亲子读物'], stock: 300, sales: 720, image: IMG.prod3, desc: '12色超轻粘土搭配板鼓、竹板模具，附图解说明书，可捏制迷你梆鼓咚乐器全套，适合儿童手工课与亲子活动。' },
   { id: 4, name: '梆鼓咚板鼓迷你挂件', price: 28.0, originalPrice: 38, category: '文创周边', tags: ['文创礼品', '随身配饰'], stock: 500, sales: 1200, image: IMG.prod4, desc: '精致缩小版板鼓造型挂件，手工编织彩色缎带流苏，可挂书包、钥匙扣，既是装饰也是非遗文化的随身名片。' },
   { id: 5, name: '梆鼓咚陶瓷乐器摆件', price: 198.0, originalPrice: 258, category: '文创周边', tags: ['文创礼品', '收藏品'], stock: 60, sales: 156, image: IMG.prod5, desc: '非遗传承人监制，以陶瓷还原板鼓与竹板造型，釉色温润，底座刻有梆鼓咚简介，是馈赠与收藏的文化精品。' },
-  { id: 6, name: '梆鼓咚主题帆布包', price: 68.0, originalPrice: 88, category: '生活文创', tags: ['文创礼品', '随身配饰'], stock: 180, sales: 390, image: IMG.prod6, desc: '以梆鼓咚科普绘本插画为设计元素，帆布材质环保耐用，印有板鼓图案与莆田方言趣味标语，日常出行百搭实用。' },
+  { id: 6, name: '梆鼓咚演出纪念册', price: 68.0, originalPrice: 88, category: '文化读物', tags: ['文创礼品', '收藏品'], stock: 100, sales: 280, image: IMG.prod6, desc: '收录梆鼓咚经典演出剧照与幕后故事，含传承人访谈、曲目解读、演奏技巧图解，精装铜版纸印刷，是了解与收藏梆鼓咚艺术的珍贵资料。' },
 ]
 
 const mallTags = ['全部', '文化教育', '手工体验', '文创礼品', '亲子读物', '随身配饰', '收藏品']
