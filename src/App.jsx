@@ -82,50 +82,40 @@ function playBangzi() {
 
 function playZhuban() {
   const ctx = getAudioCtx(), t = ctx.currentTime
-  // 快板风格 — 两片竹板连续拍击，清脆短促
-  const hit = (time) => {
-    // 高频噪声：竹片碰撞
-    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.035, ctx.sampleRate)
-    const data = buf.getChannelData(0)
-    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.7
-    const noise = ctx.createBufferSource()
-    const bp = ctx.createBiquadFilter()
+  // 快板 — 竹片碰撞的尖锐"啪"声，极短衰减
+  const clack = (time, vol) => {
+    // 核心：极短白噪声脉冲，模拟竹片撞击瞬间
+    const len = Math.floor(ctx.sampleRate * 0.015) // 15ms 极短
+    const buf = ctx.createBuffer(1, len, ctx.sampleRate)
+    const d = buf.getChannelData(0)
+    for (let i = 0; i < len; i++) {
+      // 前段更响，快速衰减，模拟撞击瞬态
+      const env = Math.exp(-i / (len * 0.15))
+      d[i] = (Math.random() * 2 - 1) * env
+    }
+    const src = ctx.createBufferSource()
+    src.buffer = buf
+    // 高通滤波 — 去掉低频，只留清脆的"啪"
+    const hp = ctx.createBiquadFilter()
+    hp.type = 'highpass'
+    hp.frequency.value = 4000
+    // 峰值滤波 — 突出竹子特有的尖锐频率
+    const peak = ctx.createBiquadFilter()
+    peak.type = 'peaking'
+    peak.frequency.value = 6000
+    peak.gain.value = 8
+    peak.Q.value = 3
     const gain = ctx.createGain()
-    noise.buffer = buf
-    bp.type = 'bandpass'
-    bp.frequency.value = 3500
-    bp.Q.value = 2.5
-    gain.gain.setValueAtTime(0.7, time)
-    gain.gain.exponentialRampToValueAtTime(0.01, time + 0.05)
-    noise.connect(bp).connect(gain).connect(ctx.destination)
-    noise.start(time)
-    // 竹片谐振 — 清脆高音
-    const osc = ctx.createOscillator()
-    const og = ctx.createGain()
-    osc.type = 'triangle'
-    osc.frequency.setValueAtTime(2200, time)
-    osc.frequency.exponentialRampToValueAtTime(1100, time + 0.03)
-    og.gain.setValueAtTime(0.35, time)
-    og.gain.exponentialRampToValueAtTime(0.01, time + 0.04)
-    osc.connect(og).connect(ctx.destination)
-    osc.start(time)
-    osc.stop(time + 0.04)
+    gain.gain.setValueAtTime(vol, time)
+    gain.gain.exponentialRampToValueAtTime(0.001, time + 0.025)
+    src.connect(hp).connect(peak).connect(gain).connect(ctx.destination)
+    src.start(time)
   }
-  // 快板节奏：嗒-嗒嗒（三连击）
-  hit(t)
-  hit(t + 0.08)
-  hit(t + 0.14)
-  // 尾音木板谐振
-  const osc = ctx.createOscillator()
-  const g2 = ctx.createGain()
-  osc.type = 'triangle'
-  osc.frequency.setValueAtTime(1800, t)
-  osc.frequency.exponentialRampToValueAtTime(900, t + 0.04)
-  g2.gain.setValueAtTime(0.3, t)
-  g2.gain.exponentialRampToValueAtTime(0.01, t + 0.06)
-  osc.connect(g2).connect(ctx.destination)
-  osc.start(t)
-  osc.stop(t + 0.06)
+  // 快板经典节奏：啪 · 啪啪 · 啪（重-轻轻-重）
+  clack(t, 0.9)
+  clack(t + 0.1, 0.55)
+  clack(t + 0.16, 0.55)
+  clack(t + 0.28, 0.85)
 }
 
 function playXingmu() {
