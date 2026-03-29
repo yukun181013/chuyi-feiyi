@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# MCP config (contains API keys)
+.mcp.json
+
+# Claude Code local files
+.claude/settings.local.json
+.claude/worktrees/

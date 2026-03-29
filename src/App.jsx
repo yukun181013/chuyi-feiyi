@@ -3,7 +3,7 @@ import './App.css'
 import ClickEffect from './ClickEffect'
 
 // ── Scroll Reveal Hook ────────────────────────────────────────────────────
-function useScrollReveal(selector, routeName, options = {}) {
+function useScrollReveal(selector, routeName) {
   useEffect(() => {
     const elements = document.querySelectorAll(selector)
     const observer = new IntersectionObserver((entries) => {
@@ -13,7 +13,7 @@ function useScrollReveal(selector, routeName, options = {}) {
           observer.unobserve(entry.target)
         }
       })
-    }, { threshold: 0.12, ...options })
+    }, { threshold: 0.12 })
     elements.forEach((el) => observer.observe(el))
     return () => observer.disconnect()
   }, [selector, routeName])
@@ -443,10 +443,10 @@ function App() {
     requestAnimationFrame(() => setIsPanelOpen(true))
   }
 
-  const handleClosePanel = () => {
+  const handleClosePanel = useCallback(() => {
     setIsPanelOpen(false)
     setIsPanelClosing(true)
-  }
+  }, [])
 
   const handlePanelTransitionEnd = (e) => {
     if (e.propertyName !== 'transform') return
@@ -468,7 +468,7 @@ function App() {
     const handleEsc = (e) => { if (e.key === 'Escape') handleClosePanel() }
     document.addEventListener('keydown', handleEsc)
     return () => document.removeEventListener('keydown', handleEsc)
-  }, [selectedInheritor])
+  }, [selectedInheritor, handleClosePanel])
 
   // Captcha
   const [captchaCode, setCaptchaCode] = useState(generateCaptcha)

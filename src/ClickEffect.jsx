@@ -43,9 +43,8 @@ function rand(min, max) {
   return min + Math.random() * (max - min)
 }
 
-// ── Single effect burst at one click point ────────────────────────────────────
-function EffectGroup({ x, y }) {
-  // Generate 6 petals evenly distributed around the click, with slight randomness
+// ── Generate all random effect data (called outside of render) ─────────────────
+function generateEffectData() {
   const petals = Array.from({ length: 6 }, (_, i) => {
     const angle = (360 / 6) * i + rand(-22, 22)
     const dist = rand(36, 74)
@@ -62,7 +61,6 @@ function EffectGroup({ x, y }) {
     }
   })
 
-  // 5 golden sparks between the petals
   const sparks = Array.from({ length: 5 }, (_, i) => {
     const angle = (360 / 5) * i + rand(-25, 25)
     const dist = rand(16, 40)
@@ -77,10 +75,15 @@ function EffectGroup({ x, y }) {
     }
   })
 
-  // 25% chance to show a floating auspicious character
   const showChar = Math.random() < 0.25
   const char = AUSPICIOUS_CHARS[Math.floor(Math.random() * AUSPICIOUS_CHARS.length)]
 
+  return { petals, sparks, showChar, char }
+}
+
+// ── Single effect burst at one click point ────────────────────────────────────
+// All random data is pre-generated and passed via props — this component is pure.
+function EffectGroup({ x, y, petals, sparks, showChar, char }) {
   const ABS = { position: 'absolute', left: 0, top: 0 }
 
   return (
@@ -198,8 +201,10 @@ export default function ClickEffect() {
   }, [])
 
   const handleClick = useCallback((e) => {
+    // Generate all random data here (event handler, not during render)
     const id = Date.now() + Math.random()
-    setEffects(prev => [...prev, { id, x: e.clientX, y: e.clientY }])
+    const data = generateEffectData()
+    setEffects(prev => [...prev, { id, x: e.clientX, y: e.clientY, ...data }])
     // Clean up after animation completes
     setTimeout(() => setEffects(prev => prev.filter(ef => ef.id !== id)), 1400)
   }, [])
@@ -220,7 +225,15 @@ export default function ClickEffect() {
       overflow: 'hidden',
     }}>
       {effects.map(ef => (
-        <EffectGroup key={ef.id} x={ef.x} y={ef.y} />
+        <EffectGroup
+          key={ef.id}
+          x={ef.x}
+          y={ef.y}
+          petals={ef.petals}
+          sparks={ef.sparks}
+          showChar={ef.showChar}
+          char={ef.char}
+        />
       ))}
     </div>
   )
