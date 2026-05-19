@@ -5,13 +5,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```bash
+pnpm install   # Install dependencies
 pnpm dev       # Start dev server (Vite HMR)
 pnpm build     # Production build
 pnpm preview   # Preview production build locally
 pnpm lint      # ESLint check
 ```
 
-No test framework is configured.
+No test framework is configured. No TypeScript — all source is `.jsx`/`.js`.
 
 ## Architecture
 
@@ -19,10 +20,11 @@ This is a **single-page application** built with React 19 + Vite for a Chinese i
 
 ### Key files
 
-- **`src/App.jsx`** — The entire application lives in one file (~1800 lines). All static data (inheritors, activities, courses, products, etc.), all state, and all render functions are defined here.
-- **`src/App.css`** — All styles in one file. CSS custom properties (`--primary`, `--font-display`, etc.) are defined at `:root`.
+- **`src/App.jsx`** — The entire application lives in one file (~1900 lines). All static data (inheritors, activities, courses, products, etc.), all state, and all render functions are defined here.
+- **`src/App.css`** — All styles in one file (~3150 lines). CSS custom properties (`--primary`, `--font-display`, etc.) are defined at `:root`.
 - **`src/ClickEffect.jsx`** — Standalone decorative click animation component (plum blossom petals + gold sparks). Mounts once in `App`, listens to all document clicks.
 - **`src/index.css`** — Global reset/base styles.
+- **`src/main.jsx`** — Standard React 19 entry point with `StrictMode`.
 
 ### Routing
 
@@ -41,7 +43,7 @@ All data (inheritors, activities, courses, products, heritage works, etc.) is de
 ### Vite plugins (vite.config.js)
 
 - **`unityGzipPlugin`** — Dev middleware that sets correct `Content-Encoding: gzip` headers for Unity WebGL assets under `/game`.
-- **`qaProxyPlugin`** — Dev-only POST proxy at `/api/qa` that forwards questions to NVIDIA's LLM API (Llama 3.1 8B). API key is read from `process.env.NVIDIA_API_KEY`.
+- **`qaProxyPlugin`** — Dev-only POST proxy at `/api/qa` that forwards questions to NVIDIA's LLM API (Llama 3.1 8B). API key is read from `process.env.NVIDIA_API_KEY`. Note: there is a hardcoded fallback key in `vite.config.js` — avoid committing changes that expose or modify it.
 
 ### Audio synthesis
 
@@ -50,6 +52,10 @@ Module-scope functions (`playDrum`, `playBangzi`, `playZhuban`, `playXingmu`) us
 ### Scroll reveal animations
 
 `useScrollReveal(selector, routeName)` is a custom hook defined at module scope (outside `App`). It uses `IntersectionObserver` to add a `.revealed` class to matching elements once they enter the viewport. Called four times inside `App` with selectors `.section-heading`, `.reveal-up`, `.reveal-left`, `.reveal-scale`. The `routeName` dependency causes the observer to rebind after route changes.
+
+### Unity WebGL Game
+
+`public/game/` contains a pre-built Unity WebGL game (Build/, TemplateData/, index.html). Loaded via an `<iframe>` on the `#/game` route. The `unityGzipPlugin` in vite.config.js is required for dev server to serve `.gz` assets correctly.
 
 ### Images
 
@@ -60,6 +66,11 @@ All images are served from `public/pptx-imgs/`. Referenced via the `IMG` constan
 - Card hover effects use `transition: box-shadow 0.2s, transform 0.2s` on the base rule.
 - `.news-card` is an alias for media report cards that shares all `.activity-card` CSS rules.
 - `prefers-reduced-motion` media query disables all scroll reveal animations.
+
+## Important Notes
+
+- The QA proxy (`/api/qa`) only works during `pnpm dev` — it is a Vite dev server middleware and is **not included in production builds**. The production deployment would need a separate backend or serverless function.
+- Because the app is a single monolithic `App.jsx`, when editing, search by section comment headers (e.g. `// ── Instrument Audio`) or function names (e.g. `renderHome`, `renderMall`) to navigate efficiently. Top-level sections in order: `Scroll Reveal Hook`, `Instrument Audio`, `Images`, `Hero carousel slides`, `Static data`, `Heritage works`, `Inheritors`, `Activities`, `Courses`, `Auth helpers`, `Route helper`, `App` (the component), `ProfileRedirect helper`, `PasswordInput helper`. Inside the `App` component, sub-sections include: `Inheritor panel state`, `Auth state`, `Inheritor panel handlers`, `Effects`, `Scroll Reveal`, `Memo`, `Handlers`, `Renderers`.
 
 ## ESLint
 

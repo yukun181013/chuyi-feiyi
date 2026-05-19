@@ -1,0 +1,462 @@
+/**
+ * 可访问性样式 (Accessibility Styles)
+ * 包含高对比度模式、焦点样式、Skip Link 等
+ */
+
+/* ========================================================================= */
+/* Skip Link - 跳转到主要内容 */
+/* ========================================================================= */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary);
+  color: white;
+  padding: 8px 16px;
+  z-index: 10000;
+  text-decoration: none;
+  font-size: 14px;
+  border-radius: 0 0 4px 0;
+  transition: top 0.3s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+/* ========================================================================= */
+/* 屏幕阅读器专用内容 */
+/* ========================================================================= */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-focusable:active,
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* ========================================================================= */
+/* 焦点样式 - 只在键盘导航时显示 */
+/* ========================================================================= */
+.js-focus-visible :focus:not(.focus-visible) {
+  outline: none;
+}
+
+.js-focus-visible .focus-visible,
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(192, 57, 43, 0.15);
+}
+
+/* 不同元素的焦点样式 */
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 0;
+  border-color: var(--primary);
+}
+
+/* ========================================================================= */
+/* 减少动画 (尊重用户偏好) */
+/* ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-up,
+  .reveal-left,
+  .reveal-scale {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ========================================================================= */
+/* 高对比度模式支持 */
+/* ========================================================================= */
+@media (prefers-contrast: high) {
+  :root {
+    --text-primary: #000000;
+    --text-strong: #000000;
+    --text-muted: #333333;
+    --background: #ffffff;
+    --border-strong: #000000;
+    --primary: #c00000;
+    --focus-ring: #000000;
+  }
+
+  * {
+    border-color: #000000 !important;
+  }
+
+  button,
+  a {
+    text-decoration: underline;
+  }
+
+  .work-card,
+  .inheritor-card,
+  .activity-card,
+  .product-card {
+    border: 2px solid #000000;
+  }
+}
+
+/* ========================================================================= */
+/* 颜色反转模式 */
+/* ========================================================================= */
+@media (inverted-colors: inverted) {
+  img,
+  video,
+  svg {
+    filter: invert(1);
+  }
+}
+
+/* ========================================================================= */
+/* 焦点指示器增强 */
+/* ========================================================================= */
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* 确保交互元素的可见性 */
+button:disabled,
+a[aria-disabled="true"],
+[role="button"][aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ========================================================================= */
+/* 错误状态样式 */
+/* ========================================================================= */
+[aria-invalid="true"] {
+  border-color: var(--error) !important;
+}
+
+[aria-invalid="true"]:focus-visible {
+  outline-color: var(--error);
+}
+
+/* 错误消息 */
+.field-error {
+  color: var(--error);
+  font-size: 13px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.field-error::before {
+  content: '⚠';
+  font-size: 12px;
+}
+
+/* ========================================================================= */
+/* 正在加载状态 */
+/* ========================================================================= */
+[aria-busy="true"] {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* ========================================================================= */
+/* 当前页面指示 */
+/* ========================================================================= */
+[aria-current="page"] {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ========================================================================= */
+/* 打印样式优化 */
+/* ========================================================================= */
+@media print {
+  .skip-link,
+  .portal-header,
+  .portal-footer,
+  .hero-carousel,
+  .toast-banner,
+  .hamburger-btn {
+    display: none !important;
+  }
+
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+
+  a {
+    text-decoration: underline;
+  }
+
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    word-break: break-all;
+  }
+}
+
+/* ========================================================================= */
+/* 键盘导航辅助 */
+/* ========================================================================= */
+/* 可视化焦点顺序指示 */
+.js-focus-visible[data-focus-ring="true"] .focus-visible {
+  position: relative;
+}
+
+.js-focus-visible[data-focus-ring="true"] .focus-visible::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px dashed var(--primary);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* ========================================================================= */
+/* 模态框焦点陷阱 */
+/* ========================================================================= */
+.modal-open {
+  overflow: hidden;
+}
+
+.modal-open body {
+  padding-right: var(--scrollbar-width, 0px);
+}
+
+/* 模态框遮罩层 */
+[role="dialog"],
+[role="alertdialog"] {
+  background: var(--surface);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================================================= */
+/* 工具提示可访问性 */
+/* ========================================================================= */
+[role="tooltip"] {
+  position: absolute;
+  background: var(--text-strong);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  z-index: 9999;
+  max-width: 200px;
+}
+
+[role="tooltip"]::after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px 6px 0;
+  border-style: solid;
+  border-color: var(--text-strong) transparent transparent;
+}
+
+/* ========================================================================= */
+/* 实时区域 */
+/* ========================================================================= */
+[aria-live="polite"],
+[aria-live="assertive"] {
+  position: fixed;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* ========================================================================= */
+/* 表格可访问性 */
+/* ========================================================================= */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+caption {
+  text-align: left;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  background: var(--background);
+}
+
+th[scope="col"],
+th[scope="row"] {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* ========================================================================= */
+/* 列表可访问性 */
+/* ========================================================================= */
+[role="list"] {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+[role="listitem"] {
+  position: relative;
+}
+
+/* ========================================================================= */
+/* 开关按钮 */
+/* ========================================================================= */
+[role="switch"] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+[role="switch"][aria-checked="true"] {
+  color: var(--primary);
+}
+
+/* ========================================================================= */
+/* 进度条和滑块 */
+/* ========================================================================= */
+[role="progressbar"],
+[role="slider"] {
+  position: relative;
+}
+
+[role="progressbar"]:focus-visible,
+[role="slider"]:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ========================================================================= */
+/* 菜单和菜单项 */
+/* ========================================================================= */
+[role="menu"] {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+[role="menuitem"]:focus,
+[role="menuitem"]:focus-visible {
+  background: var(--accent-soft);
+  outline: none;
+}
+
+/* ========================================================================= */
+/* 选项卡 */
+/* ========================================================================= */
+[role="tablist"] {
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid var(--border-soft);
+}
+
+[role="tab"] {
+  padding: 12px 20px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+[role="tab"][aria-selected="true"] {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+[role="tab"]:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+[role="tabpanel"] {
+  padding: 20px 0;
+}
+
+/* ========================================================================= */
+/* 手风琴 */
+/* ========================================================================= */
+[role="button"][aria-expanded] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+[role="button"][aria-expanded="true"] {
+  border-color: var(--primary);
+  background: var(--glass-bg);
+}
+
+[role="button"][aria-expanded]::after {
+  content: '▼';
+  font-size: 12px;
+  transition: transform 0.2s ease;
+}
+
+[role="button"][aria-expanded="true"]::after {
+  transform: rotate(180deg);
+}
+
+[role="region"][aria-labelledby] {
+  padding: 16px;
+  border: 1px solid var(--border-soft);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}

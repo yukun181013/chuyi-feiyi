@@ -97,3 +97,22 @@ h3 {
 p {
   margin: 0;
 }
+
+/* ── 隐藏左上角 Vite 错误覆盖层 / 浏览器扩展标记 ── */
+vite-error-overlay,
+[vite-error-overlay],
+.error-overlay,
+.vite-overlay,
+.vite-error-overlay,
+#vite-error-overlay,
+body > div[style*="position: fixed"][style*="top: 0"][style*="left: 0"],
+body > div[class*="overlay"],
+body > div[class*="badge"],
+body > div[id*="overlay"],
+body > div[id*="badge"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  z-index: -9999 !important;
+}

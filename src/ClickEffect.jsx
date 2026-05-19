@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 // ── CSS keyframe animations injected once into <head> ─────────────────────────
 const STYLES = `
@@ -189,6 +189,8 @@ function EffectGroup({ x, y, petals, sparks, showChar, char }) {
 // ── Main export: mounts once, listens to all clicks ───────────────────────────
 export default function ClickEffect() {
   const [effects, setEffects] = useState([])
+  const timeoutRefs = useRef(new Set())
+  const isActiveRef = useRef(true)
 
   // Inject keyframe styles once
   useEffect(() => {
@@ -197,7 +199,19 @@ export default function ClickEffect() {
     el.id = 'ce-keyframes'
     el.textContent = STYLES
     document.head.appendChild(el)
-    return () => el.remove()
+    return () => {
+      if (el.parentNode) el.remove()
+    }
+  }, [])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isActiveRef.current = false
+      // Clear all pending timeouts
+      timeoutRefs.current.forEach(id => clearTimeout(id))
+      timeoutRefs.current.clear()
+    }
   }, [])
 
   const handleClick = useCallback((e) => {
@@ -206,7 +220,13 @@ export default function ClickEffect() {
     const data = generateEffectData()
     setEffects(prev => [...prev, { id, x: e.clientX, y: e.clientY, ...data }])
     // Clean up after animation completes
-    setTimeout(() => setEffects(prev => prev.filter(ef => ef.id !== id)), 1400)
+    const timeoutId = setTimeout(() => {
+      if (isActiveRef.current) {
+        setEffects(prev => prev.filter(ef => ef.id !== id))
+      }
+      timeoutRefs.current.delete(timeoutId)
+    }, 1400)
+    timeoutRefs.current.add(timeoutId)
   }, [])
 
   useEffect(() => {

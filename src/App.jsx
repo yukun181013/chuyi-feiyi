@@ -1,21 +1,59 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, lazy, Suspense } from 'react'
 import './App.css'
+import './accessibility.css'
+import './responsive.css'
 import ClickEffect from './ClickEffect'
+import { ScrollReveal } from './components/PageTransition'
+import { LazyImage, LoadingButton } from './components/Skeleton'
+import { safeGetItem, safeSetItem } from './utils/storage'
+
+// 性能优化：路由和状态管理
+import { parseRoute } from './routes'
+
+// 页面组件懒加载
+const ProfilePage = lazy(() => import('./pages/Profile'))
+
+// 加载占位符
+function PageSkeleton() {
+  return (
+    <div className="page-skeleton" style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--text-secondary)' }}>
+      <div className="skeleton-spinner" style={{ margin: '0 auto 16px', width: '40px', height: '40px', border: '3px solid var(--divider)', borderTopColor: 'var(--primary)', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+      加载中...
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  )
+}
 
 // ── Scroll Reveal Hook ────────────────────────────────────────────────────
 function useScrollReveal(selector, routeName) {
+  const observerRef = useRef(null)
+  
   useEffect(() => {
+    // Cleanup previous observer
+    if (observerRef.current) {
+      observerRef.current.disconnect()
+    }
+    
     const elements = document.querySelectorAll(selector)
-    const observer = new IntersectionObserver((entries) => {
+    if (elements.length === 0) return
+    
+    observerRef.current = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('revealed')
-          observer.unobserve(entry.target)
+          observerRef.current?.unobserve(entry.target)
         }
       })
     }, { threshold: 0.12 })
-    elements.forEach((el) => observer.observe(el))
-    return () => observer.disconnect()
+    
+    elements.forEach((el) => observerRef.current?.observe(el))
+    
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+        observerRef.current = null
+      }
+    }
   }, [selector, routeName])
 }
 
@@ -331,6 +369,11 @@ const coursesData = [
 
 const worksCategories = ['全部', '曲艺', '民俗', '手工艺', '戏曲', '舞蹈', '仪典', '医药', '建筑', '音乐', '文学']
 
+// ── Route helper ─────────────────────────────────────────────────────────────
+function getRouteFromHash() {
+  return parseRoute(window.location.hash)
+}
+
 // ── Auth helpers ─────────────────────────────────────────────────────────────
 function generateCaptcha() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789'
@@ -338,23 +381,17 @@ function generateCaptcha() {
 }
 
 function getStoredUsers() {
-  try {
-    const stored = JSON.parse(localStorage.getItem('chuyi_users'))
-    if (Array.isArray(stored) && stored.length > 0) return stored
-  } catch { /* noop */ }
+  const stored = safeGetItem('chuyi_users')
+  if (Array.isArray(stored) && stored.length > 0) return stored
   return [{ username: 'adlix', password: '12345678', email: 'adlix@demo.com', nickname: 'John', bio: 'Hello, I am John' }]
 }
 
 function saveUsers(users) {
-  localStorage.setItem('chuyi_users', JSON.stringify(users))
+  safeSetItem('chuyi_users', users)
 }
 
 function getStoredAuth() {
-  try {
-    return JSON.parse(localStorage.getItem('chuyi_auth_user')) || null
-  } catch {
-    return null
-  }
+  return safeGetItem('chuyi_auth_user', null)
 }
 
 function avatarUrl(name) {
@@ -365,26 +402,6 @@ function avatarUrl(name) {
   const fontSize = name.length <= 2 ? 40 : name.length === 3 ? 32 : 26
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128"><rect width="128" height="128" rx="64" fill="%23${bg}"/><text x="64" y="64" text-anchor="middle" dominant-baseline="central" fill="white" font-size="${fontSize}" font-family="'Ma Shan Zheng','STKaiti','KaiTi',sans-serif">${name}</text></svg>`
   return `data:image/svg+xml,${svg}`
-}
-
-// ── Route helper ─────────────────────────────────────────────────────────────
-function getRouteFromHash() {
-  const rawHash = window.location.hash || '#/home'
-  const cleanHash = rawHash.replace(/^#/, '') || '/home'
-  const [path] = cleanHash.split('?')
-  if (path.startsWith('/mall/products/')) return { name: 'product', id: Number(path.split('/').pop()) || 1 }
-  if (path === '/mall') return { name: 'mall' }
-  if (path === '/course') return { name: 'course' }
-  if (path === '/works') return { name: 'works' }
-  if (path === '/inheritors') return { name: 'inheritors' }
-  if (path === '/activities') return { name: 'activities' }
-  if (path === '/qa') return { name: 'qa' }
-  if (path === '/announcements') return { name: 'announcements' }
-  if (path === '/login') return { name: 'login' }
-  if (path === '/profile') return { name: 'profile' }
-  if (path === '/heritage') return { name: 'heritage' }
-  if (path === '/game') return { name: 'game' }
-  return { name: 'home' }
 }
 
 // ── App ───────────────────────────────────────────────────────────────────────
@@ -412,6 +429,7 @@ function App() {
   const [profileTab, setProfileTab] = useState('个人设置')
   const [heroSlide, setHeroSlide] = useState(0)
   const [toast, setToast] = useState('')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // ── Inheritor panel state ──
   const [selectedInheritor, setSelectedInheritor] = useState(null)
@@ -481,7 +499,10 @@ function App() {
 
   // ── Effects ──
   useEffect(() => {
-    const updateRoute = () => setRoute(getRouteFromHash())
+    const updateRoute = () => {
+      setRoute(getRouteFromHash())
+      setMobileMenuOpen(false)
+    }
     window.addEventListener('hashchange', updateRoute)
     if (!window.location.hash) window.location.hash = '#/home'
     return () => window.removeEventListener('hashchange', updateRoute)
@@ -494,13 +515,25 @@ function App() {
   }, [toast])
 
   const heroTimerRef = useRef(null)
+  const isActiveRef = useRef(true)
+  
   const resetHeroTimer = useCallback(() => {
     if (heroTimerRef.current) clearInterval(heroTimerRef.current)
-    heroTimerRef.current = setInterval(() => setHeroSlide((s) => (s + 1) % heroSlides.length), 5000)
+    if (!isActiveRef.current) return
+    heroTimerRef.current = setInterval(() => {
+      if (isActiveRef.current) {
+        setHeroSlide((s) => (s + 1) % heroSlides.length)
+      }
+    }, 5000)
   }, [])
+  
   useEffect(() => {
+    isActiveRef.current = true
     resetHeroTimer()
-    return () => clearInterval(heroTimerRef.current)
+    return () => {
+      isActiveRef.current = false
+      clearInterval(heroTimerRef.current)
+    }
   }, [resetHeroTimer])
 
   // Sync profile form when user changes
@@ -514,7 +547,9 @@ function App() {
   // Close user menu on outside click
   useEffect(() => {
     function handleClickOutside(e) {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) setShowUserMenu(false)
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setShowUserMenu(false)
+      }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -670,7 +705,8 @@ function App() {
   // ── Renderers ──
   function renderHeader() {
     return (
-      <header className="portal-header">
+      <ScrollReveal direction="down" duration={400}>
+        <header className="portal-header">
         <div className="nav-inner">
           <a className="portal-logo" href="#/home" aria-label="梆鼓咚非遗门户首页">
             <span className="logo-emblem">
@@ -719,9 +755,21 @@ function App() {
               <span className="logo-text-sub">非遗文化门户</span>
             </span>
           </a>
-          <nav className="portal-nav" aria-label="主导航">
+          {/* 移动端汉堡菜单按钮 */}
+          <button
+            className={`hamburger-btn${mobileMenuOpen ? ' open' : ''}`}
+            type="button"
+            onClick={() => setMobileMenuOpen((v) => !v)}
+            aria-label={mobileMenuOpen ? '关闭导航菜单' : '打开导航菜单'}
+            aria-expanded={mobileMenuOpen}
+          >
+            <span className="hamburger-line" />
+            <span className="hamburger-line" />
+            <span className="hamburger-line" />
+          </button>
+          <nav className={`portal-nav${mobileMenuOpen ? ' mobile-open' : ''}`} aria-label="主导航">
             {navItems.map((item) => (
-              <a key={item.href} href={item.href} className={route.name === item.route ? 'nav-active' : ''}>
+              <a key={item.href} href={item.href} className={route.name === item.route ? 'nav-active' : ''} onClick={() => setMobileMenuOpen(false)}>
                 {item.label}
               </a>
             ))}
@@ -764,7 +812,8 @@ function App() {
             )}
           </div>
         </div>
-      </header>
+        </header>
+      </ScrollReveal>
     )
   }
 
@@ -815,7 +864,7 @@ function App() {
           </div>
           <div className="hero-inner">
             <h1 className="hero-title">梆鼓咚 · 莆田非遗</h1>
-            <p className="hero-subtitle">{heroSlides[heroSlide].subtitle}</p>
+            <p className="hero-subtitle">{heroSlides[heroSlide]?.subtitle || ''}</p>
             <div className="hero-actions">
               <a href="#/heritage" className="btn-primary-hero">⊙ 探索非遗</a>
               <a href="#/course" className="btn-outline-hero">□ 学习课程</a>
@@ -1176,7 +1225,7 @@ function App() {
               return (
                 <div key={c.id} className="course-card">
                   <div className="course-card-img">
-                    <img src={c.image} alt={c.title} />
+                    <LazyImage src={c.image} alt={c.title} />
                   </div>
                   <div className="course-card-body">
                     <div className="course-card-title">{c.title}</div>
@@ -1187,7 +1236,9 @@ function App() {
                         {c.level}
                       </span>
                     </div>
-                    <button className="course-start-btn" type="button">开始学习</button>
+                    <button className="course-start-btn" type="button">
+              <LoadingButton loading={isLoading}>开始学习</LoadingButton>
+            </button>
                   </div>
                 </div>
               )
@@ -1261,7 +1312,22 @@ function App() {
               placeholder="请问有什么可以帮您的吗？"
             />
             <button className="ai-send-btn" type="submit" disabled={isLoading}>
-              {isLoading ? '生成中…' : '发送'}
+              {isLoading ? (
+                <>
+                  <span style={{
+                    display: 'inline-block',
+                    width: '14px',
+                    height: '14px',
+                    marginRight: '6px',
+                    border: '2px solid transparent',
+                    borderTopColor: 'currentColor',
+                    borderRadius: '50%',
+                    animation: 'spin 0.8s linear infinite',
+                    verticalAlign: 'middle'
+                  }} />
+                  生成中…
+                </>
+              ) : '发送'}
             </button>
           </div>
         </form>
@@ -1306,7 +1372,7 @@ function App() {
             {filteredProducts.map((product) => (
               <article key={product.id} className="product-card">
                 <a href={`#/mall/products/${product.id}`} className="product-link">
-                  <img src={product.image} alt={product.name} />
+                  <LazyImage src={product.image} alt={product.name} />
                   <h3>{product.name}</h3>
                 </a>
                 <p>{product.desc}</p>
@@ -1613,149 +1679,6 @@ function App() {
     )
   }
 
-  function renderProfile() {
-    if (!user) {
-      // Redirect via effect to avoid side effects during render
-      return <ProfileRedirect />
-    }
-
-    return (
-      <div className="profile-page-wrap">
-        <aside className="profile-sidebar">
-          <div className="profile-avatar">
-            <div className="profile-avatar-wrap">
-              <img src={user.avatar || avatarUrl(user.nickname)} alt="用户头像" width="96" height="96" />
-            </div>
-            <strong>{user.nickname}</strong>
-            <span className="profile-email">{user.email}</span>
-          </div>
-          <nav aria-label="个人中心导航">
-            {['个人设置', '修改密码', '我的订单', '退出登录'].map((item) => (
-              <button
-                key={item}
-                type="button"
-                className={`${profileTab === item ? 'profile-active' : ''} ${item === '退出登录' ? 'profile-logout-btn' : ''}`}
-                onClick={() => { if (item === '退出登录') { handleLogout() } else { setProfileTab(item) } }}
-              >
-                {item}
-              </button>
-            ))}
-          </nav>
-
-          {/* 学习档案 */}
-          <div className="profile-heritage-card">
-            <div className="profile-heritage-card-title">
-              <span className="profile-heritage-icon">◈</span> 我的非遗档案
-            </div>
-            <div className="profile-stats-grid">
-              <div className="profile-stat-item">
-                <span className="profile-stat-num">3</span>
-                <span className="profile-stat-label">在学课程</span>
-              </div>
-              <div className="profile-stat-item">
-                <span className="profile-stat-num">12</span>
-                <span className="profile-stat-label">收藏作品</span>
-              </div>
-              <div className="profile-stat-item">
-                <span className="profile-stat-num">2</span>
-                <span className="profile-stat-label">参与活动</span>
-              </div>
-            </div>
-            <div className="profile-heritage-badge">
-              <span>梆鼓咚学习者</span>
-            </div>
-          </div>
-
-          {/* 每日非遗知识 */}
-          <div className="profile-trivia-card">
-            <div className="profile-trivia-header">
-              <span className="profile-heritage-icon">☯</span> 非遗小知识
-            </div>
-            <p className="profile-trivia-text">
-              梆鼓咚的板鼓由长约 25 厘米的竹筒蒙皮制成，演奏时斜背右肩；竹板两片夹于左腋，可击出<em>响鼓、边鼓、点鼓、闷鼓</em>四种音色，是莆田兴化方言区独有的曲艺形式。
-            </p>
-            <span className="profile-trivia-source">— 源自福建省非遗名录</span>
-          </div>
-        </aside>
-        <section className="profile-content">
-          <h1>{profileTab}</h1>
-
-          {profileTab === '个人设置' && (
-            <form className="profile-form" onSubmit={handleProfileSave}>
-              <div className="profile-fields">
-                <div className="auth-field">
-                  <label htmlFor="pf-nickname">昵称</label>
-                  <input id="pf-nickname" type="text" value={profileForm.nickname} onChange={(e) => setProfileForm((f) => ({ ...f, nickname: e.target.value }))} />
-                </div>
-                <div className="auth-field">
-                  <label htmlFor="pf-bio">个性签名</label>
-                  <textarea id="pf-bio" value={profileForm.bio} onChange={(e) => setProfileForm((f) => ({ ...f, bio: e.target.value }))} rows="4" />
-                </div>
-                <button className="save-button" type="submit">保存</button>
-              </div>
-              <div className="profile-upload">
-                <div className="profile-upload-avatar-wrap">
-                  <img src={avatarPreview || user.avatar || avatarUrl(user.nickname)} alt="头像预览" width="96" height="96" />
-                  <label className="profile-upload-overlay" htmlFor="avatar-upload" title="点击更换头像">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                    <span>更换头像</span>
-                  </label>
-                  <input
-                    id="avatar-upload"
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={(e) => {
-                      const file = e.target.files[0]
-                      if (!file) return
-                      if (file.size > 2 * 1024 * 1024) { setToast('图片不能超过 2MB'); return }
-                      const reader = new FileReader()
-                      reader.onload = (ev) => setAvatarPreview(ev.target.result)
-                      reader.readAsDataURL(file)
-                    }}
-                  />
-                </div>
-                <span className="profile-upload-tip">支持 JPG / PNG，最大 2MB</span>
-                {avatarPreview && avatarPreview !== user.avatar && (
-                  <button type="button" className="profile-upload-reset" onClick={() => setAvatarPreview(user.avatar || null)}>重置</button>
-                )}
-              </div>
-            </form>
-          )}
-
-          {profileTab === '修改密码' && (
-            <form className="profile-pwd-form" onSubmit={handlePasswordChange}>
-              <div className="auth-field">
-                <label htmlFor="pwd-current">当前密码</label>
-                <PasswordInput id="pwd-current" autoComplete="current-password" placeholder="输入当前密码" value={pwdForm.current} onChange={(e) => setPwdForm((f) => ({ ...f, current: e.target.value }))} />
-                {pwdErrors.current && <p className="field-error" role="alert">{pwdErrors.current}</p>}
-              </div>
-              <div className="auth-field">
-                <label htmlFor="pwd-next">新密码</label>
-                <PasswordInput id="pwd-next" autoComplete="new-password" placeholder="至少 6 个字符" value={pwdForm.next} onChange={(e) => setPwdForm((f) => ({ ...f, next: e.target.value }))} />
-                {pwdErrors.next && <p className="field-error" role="alert">{pwdErrors.next}</p>}
-              </div>
-              <div className="auth-field">
-                <label htmlFor="pwd-confirm">确认新密码</label>
-                <PasswordInput id="pwd-confirm" autoComplete="new-password" placeholder="再次输入新密码" value={pwdForm.confirm} onChange={(e) => setPwdForm((f) => ({ ...f, confirm: e.target.value }))} />
-                {pwdErrors.confirm && <p className="field-error" role="alert">{pwdErrors.confirm}</p>}
-              </div>
-              <button className="save-button" type="submit">更新密码</button>
-            </form>
-          )}
-
-          {profileTab === '我的订单' && (
-            <div className="orders-empty">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
-              <p>暂无订单记录</p>
-              <a href="#/mall">去逛逛</a>
-            </div>
-          )}
-        </section>
-      </div>
-    )
-  }
-
   function renderGame() {
     return (
       <>
@@ -1795,19 +1718,52 @@ function App() {
   }
 
   function renderPage() {
-    if (route.name === 'works') return renderWorks()
-    if (route.name === 'inheritors') return renderInheritors()
-    if (route.name === 'activities') return renderActivities()
-    if (route.name === 'course') return renderCourse()
-    if (route.name === 'mall') return renderMall()
-    if (route.name === 'game') return renderGame()
-    if (route.name === 'product') return renderProductDetail()
-    if (route.name === 'qa') return renderQA()
-    if (route.name === 'announcements') return renderAnnouncements()
-    if (route.name === 'login') return renderLogin()
-    if (route.name === 'profile') return renderProfile()
-    if (route.name === 'heritage') return renderHeritage()
-    return renderHome()
+    let content
+    if (route.name === 'works') content = renderWorks()
+    else if (route.name === 'inheritors') content = renderInheritors()
+    else if (route.name === 'activities') content = renderActivities()
+    else if (route.name === 'course') content = renderCourse()
+    else if (route.name === 'mall') content = renderMall()
+    else if (route.name === 'game') content = renderGame()
+    else if (route.name === 'product') content = renderProductDetail()
+    else if (route.name === 'qa') content = renderQA()
+    else if (route.name === 'announcements') content = renderAnnouncements()
+    else if (route.name === 'login') content = renderLogin()
+    else if (route.name === 'profile') {
+      if (!user) {
+        content = <ProfileRedirect />
+      } else {
+        content = (
+          <Suspense fallback={<PageSkeleton />}>
+            <ProfilePage
+              user={user}
+              profileTab={profileTab}
+              setProfileTab={setProfileTab}
+              profileForm={profileForm}
+              setProfileForm={setProfileForm}
+              pwdForm={pwdForm}
+              setPwdForm={setPwdForm}
+              pwdErrors={pwdErrors}
+              setPwdErrors={setPwdErrors}
+              handleProfileSave={handleProfileSave}
+              handlePasswordChange={handlePasswordChange}
+              handleLogout={handleLogout}
+              setToast={setToast}
+              avatarPreview={avatarPreview}
+              setAvatarPreview={setAvatarPreview}
+            />
+          </Suspense>
+        )
+      }
+    }
+    else if (route.name === 'heritage') content = renderHeritage()
+    else content = renderHome()
+    
+    return (
+      <div key={route.name}>
+        {content}
+      </div>
+    )
   }
 
   return (

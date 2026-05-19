@@ -1,0 +1,93 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]: 莆田状元文化数字展馆
+        - generic [ref=e7]: PUTIAN ZHUANGYUAN CULTURE DIGITAL EXHIBITION HALL
+      - navigation [ref=e8]:
+        - list [ref=e9]:
+          - listitem [ref=e10]:
+            - link "壶兰雄色" [ref=e11] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e12]:
+            - link "甲第冠闽" [ref=e13] [cursor=pointer]:
+              - /url: /page1
+          - listitem [ref=e14]:
+            - link "绛帐传薪" [ref=e15] [cursor=pointer]:
+              - /url: /page2
+          - listitem [ref=e16]:
+            - link "海滨邹鲁" [ref=e17] [cursor=pointer]:
+              - /url: /page3
+          - listitem [ref=e18]:
+            - link "新篁继韵" [ref=e19] [cursor=pointer]:
+              - /url: /page4
+  - main [ref=e20]:
+    - generic [ref=e24]:
+      - iframe [ref=e25]:
+        
+      - generic [ref=e27]:
+        - generic:
+          - generic "莆田市博物馆" [ref=e28]:
+            - img [ref=e30]
+          - generic [ref=e32] [cursor=pointer]: 莆田市博物馆
+          - generic "北大村" [ref=e33]:
+            - img [ref=e35]
+          - generic [ref=e37] [cursor=pointer]: 北大村
+          - generic "状元井" [ref=e38]:
+            - img [ref=e40]
+          - generic [ref=e42] [cursor=pointer]: 状元井
+          - generic "黄石文庙" [ref=e43]:
+            - img [ref=e45]
+          - generic [ref=e47] [cursor=pointer]: 黄石文庙
+          - generic "吴叔告状元府" [ref=e48]:
+            - img [ref=e50]
+          - generic [ref=e52] [cursor=pointer]: 吴叔告状元府
+          - generic "黄滔祠" [ref=e53]:
+            - img [ref=e55]
+          - generic [ref=e57] [cursor=pointer]: 黄滔祠
+          - generic "玉湖陈氏祖祠" [ref=e58]:
+            - img [ref=e60]
+          - generic [ref=e62] [cursor=pointer]: 玉湖陈氏祖祠
+          - generic "玉湖书院" [ref=e63]:
+            - img [ref=e65]
+          - generic [ref=e67] [cursor=pointer]: 玉湖书院
+          - generic "崇功祠" [ref=e68]:
+            - img [ref=e70]
+          - generic [ref=e72] [cursor=pointer]: 崇功祠
+          - generic "大宗伯第" [ref=e73]:
+            - img [ref=e75]
+          - generic [ref=e77] [cursor=pointer]: 大宗伯第
+          - generic "状元楼" [ref=e78]:
+            - img [ref=e80]
+          - generic [ref=e82] [cursor=pointer]: 状元楼
+          - generic "状元红荔枝树" [ref=e83]:
+            - img [ref=e85]
+          - generic [ref=e87] [cursor=pointer]: 状元红荔枝树
+          - generic "翁氏故居" [ref=e88]:
+            - img [ref=e90]
+          - generic [ref=e92] [cursor=pointer]: 翁氏故居
+          - generic "万卷书堂" [ref=e93]:
+            - img [ref=e95]
+          - generic [ref=e97] [cursor=pointer]: 万卷书堂
+          - generic "柯朱村" [ref=e98]:
+            - img [ref=e100]
+          - generic [ref=e102] [cursor=pointer]: 柯朱村
+          - generic "黄冈祠" [ref=e103]:
+            - img [ref=e105]
+          - generic [ref=e107] [cursor=pointer]: 黄冈祠
+          - generic "黄岸墓" [ref=e108]:
+            - img [ref=e110]
+          - generic [ref=e112] [cursor=pointer]: 黄岸墓
+          - generic "黄璞故居" [ref=e113]:
+            - img [ref=e115]
+          - generic [ref=e117] [cursor=pointer]: 黄璞故居
+          - generic "丹桂工艺传奇美术中心" [ref=e118]:
+            - img [ref=e120]
+          - generic [ref=e122] [cursor=pointer]: 丹桂工艺传奇美术中心
+          - generic "仙游文庙" [ref=e123]:
+            - img [ref=e125]
+          - generic [ref=e127] [cursor=pointer]: 仙游文庙
+      - generic:
+        - img
+      - generic [ref=e128]: © 2026 AutoNavi - GS(2025)5996号
+  - img "小状元" [ref=e130] [cursor=pointer]

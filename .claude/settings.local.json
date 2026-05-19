@@ -36,7 +36,33 @@
       "Bash(__NEW_LINE_ccb6e3bd32a92a69__ curl:*)",
       "Bash(__NEW_LINE_ccb6e3bd32a92a69__ echo:*)",
       "Bash(__NEW_LINE_c5562eefa72d3d06__ cp:*)",
-      "Bash(__NEW_LINE_c5562eefa72d3d06__ echo:*)"
+      "Bash(__NEW_LINE_c5562eefa72d3d06__ echo:*)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "Bash(pnpm dev:*)",
+      "Bash(gh auth:*)",
+      "Bash(brew install:*)",
+      "Bash(gh repo:*)",
+      "Bash(npx:*)",
+      "Bash(npm search:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(open:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_resize"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "chrome-devtools",
+    "figma",
+    "context7",
+    "git",
+    "playwright"
+  ]
 }

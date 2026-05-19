@@ -98,6 +98,13 @@ export default defineConfig(({ mode }) => {
   process.env = { ...process.env, ...loadEnv(mode, process.cwd(), '') }
 
   return {
-    plugins: [react(), unityGzipPlugin(), qaProxyPlugin()],
+    plugins: [
+      react({
+        // 禁用左上角错误覆盖层标记
+        overlay: false,
+      }),
+      unityGzipPlugin(),
+      qaProxyPlugin(),
+    ],
   }
 })
