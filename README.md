@@ -4,7 +4,7 @@
 
 🌐 **在线访问**:
 > - 🇨🇳 国内:<https://yukun181013.github.io/banggudong-feiyi>(GitHub Pages)
-> - 🌍 海外:<https://chuyi-feiyi.vercel.app>(Vercel)
+> - 🌍 海外:<https://banggudong-feiyi.vercel.app>(Vercel)
 
 ---
 
