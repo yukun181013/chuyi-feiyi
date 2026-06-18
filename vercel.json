@@ -3,5 +3,10 @@
   "framework": "vite",
   "installCommand": "pnpm install --no-frozen-lockfile",
   "buildCommand": "pnpm build",
-  "outputDirectory": "dist"
+  "outputDirectory": "dist",
+  "git": {
+    "deploymentEnabled": {
+      "gh-pages": false
+    }
+  }
 }
