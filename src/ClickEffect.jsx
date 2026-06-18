@@ -206,11 +206,12 @@ export default function ClickEffect() {
 
   // Cleanup on unmount
   useEffect(() => {
+    const timeouts = timeoutRefs.current
     return () => {
       isActiveRef.current = false
       // Clear all pending timeouts
-      timeoutRefs.current.forEach(id => clearTimeout(id))
-      timeoutRefs.current.clear()
+      timeouts.forEach(id => clearTimeout(id))
+      timeouts.clear()
     }
   }, [])
 

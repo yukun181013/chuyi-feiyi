@@ -4,7 +4,7 @@ import './accessibility.css'
 import './responsive.css'
 import ClickEffect from './ClickEffect'
 import { ScrollReveal } from './components/PageTransition'
-import { LazyImage, LoadingButton } from './components/Skeleton'
+import { LazyImage } from './components/Skeleton'
 import { safeGetItem, safeSetItem } from './utils/storage'
 
 // 性能优化：路由和状态管理
@@ -389,7 +389,7 @@ function getStoredUsers() {
 }
 
 function saveUsers(users) {
-  safeSetItem('chuyi_users', users)
+  return safeSetItem('chuyi_users', users)
 }
 
 function getStoredAuth() {
@@ -578,18 +578,23 @@ function App() {
     return sorted
   }, [activeTag, searchText, sortMode])
 
-  const currentProduct = route.name === 'product' ? products.find((item) => item.id === route.id) || products[0] : null
+  const currentProduct = route.name === 'product' ? (products.find((item) => item.id === route.id) || null) : null
 
   // ── Handlers ──
+  const askRequestIdRef = useRef(0)
   async function handleAsk(event) {
     event.preventDefault()
     if (!question.trim()) { setError('请输入问题后再发送。'); return }
+    // 请求序号：仅最新一次请求的结果可写入状态，避免连发时旧响应覆盖新答案
+    const reqId = ++askRequestIdRef.current
+    const isStale = () => askRequestIdRef.current !== reqId
     setIsLoading(true); setError(''); setAnswer(''); setAskedQuestion(question)
     try {
       // 若配置了智谱 key（VITE_ZHIPU_API_KEY），浏览器直连 GLM-4-Flash —— 这样纯静态
       // 托管（Gitee / GitHub Pages，国内可访问）也能用 AI 问答，无需后端；否则回退到
       // /api/qa 后端（Vercel，密钥在服务端不外泄）。
       const zhipuKey = import.meta.env.VITE_ZHIPU_API_KEY
+      let answerText
       if (zhipuKey) {
         const res = await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions', {
           method: 'POST',
@@ -606,17 +611,18 @@ function App() {
         })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error?.message || '问答接口暂时不可用。')
-        setAnswer(data.choices?.[0]?.message?.content?.trim() || '接口已连通，但本次没有返回可显示的内容。')
+        answerText = data.choices?.[0]?.message?.content?.trim() || '接口已连通，但本次没有返回可显示的内容。'
       } else {
         const res = await fetch('/api/qa', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question }) })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || '问答接口暂时不可用。')
-        setAnswer(data.answer)
+        answerText = data.answer
       }
+      if (!isStale()) setAnswer(answerText)
     } catch (requestError) {
-      setError(requestError.message || '问答接口暂时不可用。')
+      if (!isStale()) setError(requestError.message || '问答接口暂时不可用。')
     } finally {
-      setIsLoading(false)
+      if (!isStale()) setIsLoading(false)
     }
   }
 
@@ -702,9 +708,14 @@ function App() {
     event.preventDefault()
     if (!profileForm.nickname.trim()) return
     const updated = { ...user, nickname: profileForm.nickname.trim(), bio: profileForm.bio, avatar: avatarPreview || user.avatar || null }
-    localStorage.setItem('chuyi_auth_user', JSON.stringify(updated))
     const users = getStoredUsers().map((u) => u.username === updated.username ? { ...u, nickname: updated.nickname, bio: updated.bio, avatar: updated.avatar } : u)
-    saveUsers(users)
+    // 头像转成 Base64 后体积可能超过 localStorage 配额；写入失败时不能谎报“已保存”
+    const authSaved = safeSetItem('chuyi_auth_user', updated)
+    const usersSaved = saveUsers(users)
+    if (!authSaved || !usersSaved) {
+      setToast('保存失败：本地存储空间不足，请更换更小的头像后重试')
+      return
+    }
     setUser(updated)
     setToast('个人资料已保存')
   }
@@ -877,12 +888,16 @@ function App() {
           {/* 乐器实物图片 — 可点击发声 */}
           <div className="hero-instruments">
             <div className="hero-instr hero-instr-photo hero-instr-photo-left" title="板鼓"
-              onClick={(e) => { e.stopPropagation(); playDrum(); e.currentTarget.classList.remove('hero-instr-hit'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('hero-instr-hit') }}>
+              role="button" tabIndex={0} aria-label="试听板鼓声"
+              onClick={(e) => { e.stopPropagation(); playDrum(); e.currentTarget.classList.remove('hero-instr-hit'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('hero-instr-hit') }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playDrum() } }}>
               <img src={IMG.bangguInstruments} alt="梆鼓咚乐器 — 板鼓与竹板" />
               <span className="hero-instr-label">点击试听 · 板鼓</span>
             </div>
             <div className="hero-instr hero-instr-photo hero-instr-photo-right" title="竹板"
-              onClick={(e) => { e.stopPropagation(); playZhuban(); e.currentTarget.classList.remove('hero-instr-hit'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('hero-instr-hit') }}>
+              role="button" tabIndex={0} aria-label="试听竹板声"
+              onClick={(e) => { e.stopPropagation(); playZhuban(); e.currentTarget.classList.remove('hero-instr-hit'); void e.currentTarget.offsetWidth; e.currentTarget.classList.add('hero-instr-hit') }}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); playZhuban() } }}>
               <img src={IMG.bangguDrawing} alt="梆鼓咚民俗演奏线描" />
               <span className="hero-instr-label">点击试听 · 竹板</span>
             </div>
@@ -1261,9 +1276,7 @@ function App() {
                         {c.level}
                       </span>
                     </div>
-                    <button className="course-start-btn" type="button">
-              <LoadingButton loading={isLoading}>开始学习</LoadingButton>
-            </button>
+                    <button className="course-start-btn" type="button">开始学习</button>
                   </div>
                 </div>
               )
@@ -1411,7 +1424,16 @@ function App() {
   }
 
   function renderProductDetail() {
-    if (!currentProduct) return null
+    if (!currentProduct) {
+      return (
+        <div className="product-detail-page">
+          <div className="empty-state" style={{ textAlign: 'center', padding: '64px 24px' }}>
+            <p>该商品不存在或已下架</p>
+            <a href="#/mall" className="btn-primary-hero">返回商城</a>
+          </div>
+        </div>
+      )
+    }
     return (
       <div className="product-detail-page">
         <div className="product-detail-card">
@@ -1769,7 +1791,6 @@ function App() {
               pwdForm={pwdForm}
               setPwdForm={setPwdForm}
               pwdErrors={pwdErrors}
-              setPwdErrors={setPwdErrors}
               handleProfileSave={handleProfileSave}
               handlePasswordChange={handlePasswordChange}
               handleLogout={handleLogout}
@@ -1805,9 +1826,12 @@ function App() {
         <div
           className={`inheritor-panel${isPanelOpen && !isPanelClosing ? ' inheritor-panel--open' : ''}${isPanelClosing ? ' inheritor-panel--closing' : ''}`}
           onTransitionEnd={handlePanelTransitionEnd}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="inheritor-panel-name"
         >
           <div className="inheritor-panel-header">
-            <div className="inheritor-panel-name">{selectedInheritor.name}</div>
+            <div className="inheritor-panel-name" id="inheritor-panel-name">{selectedInheritor.name}</div>
             <button
               className="inheritor-panel-close"
               onClick={handleClosePanel}

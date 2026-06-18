@@ -69,7 +69,7 @@ export function getStorageUsage() {
     let total = 0
     let items = 0
     for (let key in localStorage) {
-      if (localStorage.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(localStorage, key)) {
         const size = localStorage[key].length * 2 // 每个字符 2 字节
         total += size
         items++
@@ -80,7 +80,7 @@ export function getStorageUsage() {
       items,
       available: '5-10MB (browser dependent)'
     }
-  } catch (error) {
+  } catch {
     return { error: 'Cannot calculate storage usage' }
   }
 }

@@ -83,7 +83,6 @@ function ProfilePage({
   pwdForm,
   setPwdForm,
   pwdErrors,
-  setPwdErrors,
   handleProfileSave,
   handlePasswordChange,
   handleLogout,

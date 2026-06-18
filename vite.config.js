@@ -43,13 +43,21 @@ function qaProxyPlugin() {
 
         req.on('end', async () => {
           try {
+            const apiKey = process.env.NVIDIA_API_KEY
+            if (!apiKey) {
+              res.statusCode = 500
+              res.setHeader('Content-Type', 'application/json')
+              res.end(JSON.stringify({ error: 'AI 问答暂不可用：未配置 NVIDIA_API_KEY 环境变量（请在 .env 中设置）。' }))
+              return
+            }
+
             const { question } = JSON.parse(rawBody || '{}')
 
             const upstream = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${process.env.NVIDIA_API_KEY || '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'}`,
+                Authorization: `Bearer ${apiKey}`,
               },
               body: JSON.stringify({
                 model: 'meta/llama-3.1-8b-instruct',
